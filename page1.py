@@ -184,7 +184,8 @@ def show():
             eladasi_ar = get_price(df_termek_kod, termek_kod, arlista_szint)
 
             if eladasi_ar:
-                ar = ossz_terulet * eladasi_ar
+                st.write(eladasi_ar)
+                ar = float(ossz_terulet) * float(eladasi_ar)
                 if melegperem_szin:
                     ar += MELEGPEREM_AR.get(tipus, 0)
             ar = math.ceil(ar)
