@@ -22,7 +22,7 @@ MELEGPEREM_AR = {"Duplex": 35, "Triplex": 70}
 def terulet_szamitas(hosszusag, szelesseg, darabszam, spec_forma=False, tavtarto=False):
     # Alapterület számítása
     try:
-        hossz = float(hosszusag)
+        hosszusag = float(hosszusag)
         szelesseg = float(szelesseg)
         darabszam = int(darabszam)
     except ValueError:
@@ -39,17 +39,19 @@ def terulet_szamitas(hosszusag, szelesseg, darabszam, spec_forma=False, tavtarto
             terulet_adalekkal = terulet_siman + adalek  # Hozzáadjuk az adalékot az alapterülethez
 
         # Távtartó vagy speciális forma esetén újabb 30% adalék az aktuális területre
-        if spec_forma or tavtarto:
+        if spec_forma == "Eltérő forma":
             adalek += FORMA_SZORZO * terulet_adalekkal
             terulet_adalekkal += FORMA_SZORZO * terulet_adalekkal  # Frissített terület az adalékkal
-
+        if tavtarto == "Távtartó":
+            adalek += 0.2 * terulet_adalekkal
+            terulet_adalekkal += FORMA_SZORZO * terulet_adalekkal  # Frissített terület az adalékkal
         if terulet_adalekkal >= MAX_TERULET:
             st.warning("⚠️ Ellenőrizd a vastagságot, biztonsági okokból!")
 
         # Összes terület számítása a darabszámmal
         ossz_terulet = terulet_adalekkal * darabszam
 
-        return [round(terulet_siman, 2), round(adalek, 2), round(ossz_terulet, 2)]
+        return [round(terulet_siman, 2)*darabszam, round(adalek, 2)*darabszam, round(ossz_terulet, 2)]
     else:
         st.error("❌ Kérlek add meg a hosszúságot és a szélességet!")
 @st.cache_data
@@ -148,7 +150,9 @@ def show():
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
     if bevitel == "Kézi bevitel":
-        megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista)
+        megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista, index=None, placeholder="Válaszd ki a megrendelőt")
+        if megrendelo_neve == None:
+            st.error("Add meg a megrendelő nevét")
         if megrendelo_neve == "Magánszemély":
             megrendelo_neve = st.text_input("Írd be a megrendelő nevét")
 
@@ -172,7 +176,7 @@ def show():
         darabszam = st.number_input("Darabszám", min_value=1, value=1, placeholder="Írj be egy számot...")
 
         [terulet,adalek,ossz_terulet] = terulet_szamitas(hosszusag, szelesseg, darabszam, forma, tavtarto)
-        st.write(f" Az üveg területe {terulet} m², melyhez hozzájön adalékként {adalek*darabszam} m², így az összterület = {terulet} * {darabszam}  + {adalek*darabszam} = {ossz_terulet} m²")
+        st.write(f" Az üveg területe {terulet} m², melyhez hozzájön adalékként {adalek} m², így az összterület = {terulet} + {adalek} = {ossz_terulet} m²")
 
         ar = 0
         if terulet > 0:
@@ -227,7 +231,6 @@ def show():
         if uploaded_file:
             try:
                 order_data = read_excel.extract_order_data(uploaded_file)
-                st.dataframe(order_data)
                 megrendelo_neve = order_data['Megrendelő_neve'].iloc[0]
                 arlista_szint = 2 if not df_cegek_arlista.loc[
                     df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
@@ -256,12 +259,11 @@ def show():
                                                      row["Eltérő forma"],
                                                      row["Távtartó"]
                                                      )[2], axis=1)
-
                     order_data["Ár"] = order_data.apply(
                         lambda row: get_price(df_termek_kod, row["Üveg típusa"], arlista_szint) * row['Össz terület'], axis=1
                     )
                     order_data["Ár"] = order_data["Ár"].apply(np.ceil)
-                    st.dataframe(order_data[["Szélesség","Magasság", "Darabszám", "Üveg típusa", "Üveg vastagsága", "Melegperem","Össz terület", "Ár" ]])
+                    st.dataframe(order_data[["Szélesség","Magasság", "Darabszám", "Üveg típusa", "Üveg vastagsága", "Melegperem", "Terület" ,"Adalék","Össz terület", "Ár" ]])
 
                     st.write(f"💰 **Számított ár:** {order_data['Ár'].sum()} lej")
                 else:
