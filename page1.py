@@ -5,17 +5,9 @@ import math
 import read_excel
 import numpy as np
 import generate_price_offer as gen_p
-from itertools import permutations
+import datetime
+import constants as C
 
-# 🔹 KONSTANSOK
-FILE_PATH = "./GlaserdiTeruletSzamolas_v5.3_Peter_verzioja.xlsm"
-MIN_MERET = 50
-MAX_MERET = 3210
-MIN_TERULET = 0.2
-MAX_TERULET = 2.5
-FORMA_SZORZO = 0.3
-ADALEK_SZORZO= 0.2
-MELEGPEREM_AR = {"Duplex": 35, "Triplex": 70}
 
 
 # 🔹 TERÜLET SZÁMÍTÁS
@@ -34,18 +26,20 @@ def terulet_szamitas(hosszusag, szelesseg, darabszam, spec_forma=False, tavtarto
         # Adalék számítása
         adalek = 0
         terulet_adalekkal = terulet_siman
-        if terulet_siman <= MIN_TERULET or terulet_siman >= MAX_TERULET:
-            adalek += ADALEK_SZORZO * terulet_siman
+        if terulet_siman <= C.MIN_TERULET or terulet_siman >= C.MAX_TERULET:
+            adalek += C.ADALEK_SZORZO * terulet_siman
             terulet_adalekkal = terulet_siman + adalek  # Hozzáadjuk az adalékot az alapterülethez
 
         # Távtartó vagy speciális forma esetén újabb 30% adalék az aktuális területre
         if spec_forma == "Eltérő forma":
-            adalek += FORMA_SZORZO * terulet_adalekkal
-            terulet_adalekkal += FORMA_SZORZO * terulet_adalekkal  # Frissített terület az adalékkal
+            adalek += C.FORMA_SZORZO * terulet_adalekkal
+            terulet_adalekkal += C.FORMA_SZORZO * terulet_adalekkal  # Frissített terület az adalékkal
+
         if tavtarto == "Távtartó":
-            adalek += 0.2 * terulet_adalekkal
-            terulet_adalekkal += FORMA_SZORZO * terulet_adalekkal  # Frissített terület az adalékkal
-        if terulet_adalekkal >= MAX_TERULET:
+            adalek += C.TAVTARTO_ADALEK * terulet_adalekkal
+            terulet_adalekkal += C.TAVTARTO_ADALEK * terulet_adalekkal
+
+        if terulet_adalekkal >= C.MAX_TERULET:
             st.warning("⚠️ Ellenőrizd a vastagságot, biztonsági okokból!")
 
         # Összes terület számítása a darabszámmal
@@ -64,10 +58,10 @@ def get_retegek_by_kod(termek_kod, duplex_list, triplex_list):
 
 # 🔹 ÁR KALKULÁCIÓ
 @st.cache_data
-def get_price(df, termek_kod, arlista_szint):
+def get_ar(df, termek_kod, arlista_szint):
     column_name = f"Eladási Ár {arlista_szint}"
     filtered_rows = df.loc[df["Termék Kod"] == termek_kod, column_name]
-    return filtered_rows.iloc[0] if not filtered_rows.empty else None
+    return float(filtered_rows.iloc[0]) if not filtered_rows.empty else None
 
 
 def calculate_wood_pieces(df, reteg):
@@ -84,10 +78,6 @@ def calculate_wood_pieces(df, reteg):
             lec_lista.append(magassag)
 
     return sorted(lec_lista, reverse=True)  # Hosszabbakat először
-
-
-# Optimalizált vágás 6 méteres lecekre
-from itertools import permutations
 
 
 def optimize_cutting(lec_lista, max_length=6000):
@@ -127,7 +117,7 @@ def show():
         df_cegek_arlista = pd.read_excel(file_path, sheet_name='Arlista')
         return df_termek_kod, df_vastagsag, df_cegek_arlista
 
-    df_termek_kod, df_vastagsag, df_cegek_arlista = load_excel_data(FILE_PATH)
+    df_termek_kod, df_vastagsag, df_cegek_arlista = load_excel_data(C.FILE_PATH)
 
     # 🔹 TERMÉKKÓDOK LEKÉRÉSE (Cache)
     @st.cache_data
@@ -150,9 +140,7 @@ def show():
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
     if bevitel == "Kézi bevitel":
-        megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista, index=None, placeholder="Válaszd ki a megrendelőt")
-        if megrendelo_neve == None:
-            st.error("Add meg a megrendelő nevét")
+        megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista)
         if megrendelo_neve == "Magánszemély":
             megrendelo_neve = st.text_input("Írd be a megrendelő nevét")
 
@@ -171,23 +159,23 @@ def show():
 
         melegperem_szin = st.radio("Melegperem színe", ["Fekete", "Szürke"]) if melegperem else None
 
-        szelesseg = st.number_input("Szélesség (mm)", min_value=MIN_MERET, max_value=MAX_MERET, placeholder="Írj be egy számot...")
-        hosszusag = st.number_input("Hosszúság (mm)", min_value=MIN_MERET, max_value=MAX_MERET, placeholder="Írj be egy számot...")
+        szelesseg = st.number_input("Szélesség (mm)", min_value=1, max_value=C.MAX_MERET, placeholder="Írj be egy számot...")
+        hosszusag = st.number_input("Hosszúság (mm)", min_value=1, max_value=C.MAX_MERET, placeholder="Írj be egy számot...")
         darabszam = st.number_input("Darabszám", min_value=1, value=1, placeholder="Írj be egy számot...")
 
         [terulet,adalek,ossz_terulet] = terulet_szamitas(hosszusag, szelesseg, darabszam, forma, tavtarto)
-        st.write(f" Az üveg területe {terulet} m², melyhez hozzájön adalékként {adalek} m², így az összterület = {terulet} + {adalek} = {ossz_terulet} m²")
+        st.write(f" Az üveg területe {terulet} m², melyhez hozzájön adalékként {adalek} m², így az összterület = {terulet}  + {adalek} = {ossz_terulet} m²")
 
         ar = 0
         if terulet > 0:
             arlista_szint = 2 if not df_cegek_arlista.loc[df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
-            eladasi_ar = get_price(df_termek_kod, termek_kod, arlista_szint)
+            eladasi_ar = get_ar(df_termek_kod, termek_kod, arlista_szint)
 
             if eladasi_ar:
-                st.write(eladasi_ar)
-                ar = float(ossz_terulet) * float(eladasi_ar)
                 if melegperem_szin:
-                    ar += MELEGPEREM_AR.get(tipus, 0)
+                    eladasi_ar += C.MELEGPEREM_AR.get(tipus, 0)
+                ar = ossz_terulet * eladasi_ar
+
             ar = math.ceil(ar)
             st.write(f"💰 **Számított ár:** {ar:.2f} lej")
 
@@ -212,7 +200,9 @@ def show():
                     [st.session_state.adathalmaz, pd.DataFrame([bevitt_adatok])],
                     ignore_index=True
                 )
-
+                st.session_state.szelesseg = None
+                st.session_state.hosszusag = None
+                st.rerun()
         st.dataframe(st.session_state.adathalmaz, use_container_width=True)
 
         output = io.BytesIO()
@@ -225,6 +215,25 @@ def show():
                            file_name=f"rendeles_{megrendelo_neve}.xlsx",
                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
+        # 🔄 CSV betöltése (ha van)
+        try:
+            deadlines = pd.read_csv(C.CSV_FILE)
+        except FileNotFoundError:
+            deadlines = pd.DataFrame(columns=["title", "start"])
+
+        new_date = st.date_input("Határidő:", datetime.date.today())
+        task_name = st.text_input("Feladat neve:")
+
+        if st.button("Határidő hozzáadása"):
+            if task_name:
+                new_entry = pd.DataFrame([{"title": task_name, "start": str(new_date)}])
+                deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
+                deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+                st.success(f"✅ Hozzáadva: {task_name} - {new_date}")
+                st.rerun()
+            else:
+                st.warning("⚠️ Adj meg egy feladatot!")
+
 
     elif bevitel == "Fájl feltöltése":
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
@@ -233,6 +242,8 @@ def show():
             try:
                 order_data = read_excel.extract_order_data(uploaded_file)
                 megrendelo_neve = order_data['Megrendelő_neve'].iloc[0]
+                hatarido = str(order_data['Határidő'].iloc[0]).split(" ")[0]
+                sorszam = order_data['Sorszám_Megrendelés'].iloc[0]
                 arlista_szint = 2 if not df_cegek_arlista.loc[
                     df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
                 order_data["Megrendelo_neve"] = megrendelo_neve
@@ -260,34 +271,56 @@ def show():
                                                      row["Eltérő forma"],
                                                      row["Távtartó"]
                                                      )[2], axis=1)
-                    order_data["Ár"] = order_data.apply(
-                        lambda row: get_price(df_termek_kod, row["Üveg típusa"], arlista_szint) * row['Össz terület'], axis=1
-                    )
-                    order_data["Ár"] = order_data["Ár"].apply(np.ceil)
-                    st.dataframe(order_data[["Szélesség","Magasság", "Darabszám", "Üveg típusa", "Üveg vastagsága", "Melegperem", "Terület" ,"Adalék","Össz terület", "Ár" ]])
 
-                    st.write(f"💰 **Számított ár:** {order_data['Ár'].sum()} lej")
+                    order_data["Egységár"] = order_data.apply(
+                        lambda row: get_ar(df_termek_kod, row["Üveg típusa"], arlista_szint), axis=1
+                    )
+
+                    if order_data["Melegperem"][0] == "fekete" or order_data["Melegperem"][0] == "szürke":
+                        order_data["Egységár"] = order_data["Egységár"] + 35
+
+                    order_data["Ár"] = order_data.apply(
+                        lambda row:  row["Egységár"] * row['Össz terület'], axis=1
+                    )
+
+                    order_data["Ár"] = order_data["Ár"].apply(np.ceil)
+                    st.dataframe(order_data[["Szélesség","Magasság", "Darabszám", "Üveg vastagsága", "Melegperem", "Terület", "Adalék", "Üveg típusa", "Össz terület", "Ár" ]])
+
+                    st.write(f"💰 **Számított ár:** {order_data["Ár"].sum()} lej")
                 else:
                     missing_cols = [col for col in required_columns if col not in order_data.columns]
                     st.error(f"❌ Hiányzó oszlopok: {', '.join(missing_cols)}")
             except Exception as e:
                 st.error(f"Hiba történt a fájl feldolgozása közben: {e}")
 
+            arlista_szint = 2 if not df_cegek_arlista.loc[
+                df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
 
             order_data["Egységár"] = order_data.apply(
-                lambda row: get_price(df_termek_kod, row["Üveg típusa"], arlista_szint),
+                lambda row: get_ar(df_termek_kod, row["Üveg típusa"], arlista_szint),
                 axis=1
             )
+
             pdf_buffer = gen_p.generate_pdf(order_data, "GLASERDI", "logo.jpg")
 
             st.download_button(
                 label="📥 Letöltés PDF-ként",
                 data=pdf_buffer,
-                file_name="arajanlat.pdf",
+                file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_arajanlat.pdf",
                 mime="application/pdf"
             )
 
-            st.title("Optimalizált lecvágási Kalkulátor")
+            if st.button("✅ Árajánlat elfogadása"):
+                try:
+                    deadlines = pd.read_csv(C.CSV_FILE)
+                except FileNotFoundError:
+                    deadlines = pd.DataFrame(columns=["title", "start"])
+
+                new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
+                deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
+                deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+
+            st.title("Optimalizált lécvágási Kalkulátor")
 
             # lec méretek számítása
             lec_lista = calculate_wood_pieces(order_data, get_retegek_by_kod(order_data.iloc[0]["Üveg típusa"], duplex_codes, triplex_codes) )
