@@ -33,5 +33,4 @@ def extract_order_data(file_path):
         Melegperem=g6_value
     )
 
-    print(result_data)
     return result_data
