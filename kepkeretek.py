@@ -1,7 +1,5 @@
 import streamlit as st
 
 def show():
-    st.title("🪞 Vágott üveg rendelések")
+    st.title(" 🖼️ Képkeret rendelések")
     st.balloons()
-
-

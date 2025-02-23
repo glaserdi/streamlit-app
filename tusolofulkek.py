@@ -1,7 +1,7 @@
 import streamlit as st
 import constants as C
 def show():
-
+    st.title("🚿 Tusolófüle rendelések ")
     bevitel = st.selectbox("Hány üvegből áll a tusolófülke?", ["1", "2", "3", "Egyéb"])
     if bevitel == "1":
         osszetetel = st.selectbox("Összetétel", ["Fal", "Ajtó"])
@@ -28,33 +28,33 @@ def show():
         if osszetetel == "Fal + Ajtó":
             tipus = st.radio("Típus?", ["L alakú", "Egymás melletti"])
 
-            szelesseg1 = st.number_input("Szélessége (mm) a falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("A FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) a falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("A FAL magassága (mm))", min_value=1, max_value=C.MAX_MERET,
                                        placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("Az AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("Az AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
         elif osszetetel == "Fal + Fal":
             tipus = st.radio("Típus?", ["L alakú", "Egymás melletti"])
 
-            szelesseg1 = st.number_input("Szélessége (mm) az első falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("Az 1. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) az első falnak", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("Az 1. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) a második falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("A 2. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) a második falnak", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("Az 1. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
         elif osszetetel == "Tolós":
-            szelesseg1 = st.number_input("Szélessége (mm) a falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("A FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) a falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("A FAL magassága (mm))", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("Az AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("Az AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
 
         uveg_tipus = st.selectbox("Milyen típusú üvegekből szeretnéd?", ["6-os", "8-as", "Füstös", "Matt", "Fekete"])
@@ -71,64 +71,64 @@ def show():
         if osszetetel == "Fal + Ajtó + Fal":
             tipus = st.radio("Típus?", ["L alakú", "Egymás melletti"])
 
-            szelesseg1 = st.number_input("Szélessége (mm) az első falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("Az 1. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) az első falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("Az 1. FAL magassága (mm))", min_value=1, max_value=C.MAX_MERET,
                                        placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("Az AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("Az AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg3 = st.number_input("Szélessége (mm) a második falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg3 = st.number_input("A 2. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag3 = st.number_input("Magassága (mm) a második falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag3 = st.number_input("A 2. FAL magassága (mm))", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
         elif osszetetel == "Fal + Fal + Ajtó":
 
             tipus = st.radio("Típus?", ["L alakú", "Egymás melletti"])
 
-            szelesseg1 = st.number_input("Szélessége (mm) az első falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("Az 1. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) az első falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("Az 1. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) a második falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("A 2. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) a második falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("A 2. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg3 = st.number_input("Szélessége (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg3 = st.number_input("Az AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag3 = st.number_input("Magassága (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            magassag3 = st.number_input("Az AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
 
         elif osszetetel == "Fal + Ajtó + Ajtó":
 
             tipus = st.radio("Típus?", ["L alakú", "Egymás melletti"])
 
-            szelesseg1 = st.number_input("Szélessége (mm) az első ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("Az 1. AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) az első ajtónak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("Az 1. AJTÓ magassága (mm))", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) a második ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("A 2. AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) a második ajtónak)", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("A 2. AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg3 = st.number_input("Szélessége (mm) a falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg3 = st.number_input("A FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag3 = st.number_input("Magassága (mm) a falnak", min_value=1, max_value=C.MAX_MERET,
+            magassag3 = st.number_input("A FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
 
         elif osszetetel == "Tolós":
-            szelesseg1 = st.number_input("Szélessége (mm) az első falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg1 = st.number_input("Az 1. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag1 = st.number_input("Magassága (mm) az első falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag1 = st.number_input("Az 1. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg2 = st.number_input("Szélessége (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg2 = st.number_input("Az AJTÓ szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag2 = st.number_input("Magassága (mm) az ajtónak", min_value=1, max_value=C.MAX_MERET,
+            magassag2 = st.number_input("Az AJTÓ magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
-            szelesseg3 = st.number_input("Szélessége (mm) a második falnak", min_value=1, max_value=C.MAX_MERET,
+            szelesseg3 = st.number_input("A 2. FAL szélessége (mm)", min_value=1, max_value=C.MAX_MERET,
                                          placeholder="Írj be egy számot...")
-            magassag3 = st.number_input("Magassága (mm) a második falnak)", min_value=1, max_value=C.MAX_MERET,
+            magassag3 = st.number_input("Az 2. FAL magassága (mm)", min_value=1, max_value=C.MAX_MERET,
                                         placeholder="Írj be egy számot...")
 
         uveg_tipus = st.selectbox("Milyen típusú üvegekből szeretnéd?", ["6-os", "8-as", "Füstös", "Matt", "Fekete"])

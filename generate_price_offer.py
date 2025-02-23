@@ -1,9 +1,8 @@
 from fpdf import FPDF
 from datetime import datetime
-import pandas as pd
 import io
 
-def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, output_path="arajanlat.pdf"):
+def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sorszam=None):
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=10)
     pdf.add_page()
@@ -20,19 +19,22 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, outp
                    align="R")
 
     # Árajánlat cím és dátum középen
-    pdf.set_xy(10, 35)  # Új pozíció beállítása a következő tartalomhoz
+    pdf.set_xy(10, 15)  # Új pozíció beállítása a következő tartalomhoz
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "ÁRAJÁNLAT", ln=1, align="C")
     pdf.set_font("Arial", "", 12)
-    pdf.cell(0, 10, f"Dátum: {datetime.now().strftime('%Y-%m-%d')}", ln=1, align="C")
-    pdf.cell(0, 10, f"Ajánlatot kérte: {order_data['Megrendelo_neve'].iloc[0]}", ln=1, align="C")
-
-    pdf.ln(10)  # Távolság a táblázat előtt
+    pdf.cell(0, 10, f"Dátum: {datetime.now().strftime('%Y-%m-%d')}", ln=0.5, align="C")
+    pdf.cell(0, 10, f"Ajánlatot kérte: {order_data['Megrendelo_neve'].iloc[0]}", ln=0.5, align="C")
+    if bevitel == "file":
+        pdf.cell(0, 10,f"Sorszám: {order_data['Sorszám_Megrendelés'].iloc[0]}", ln=0.5, align="C")
+    else:
+        pdf.cell(0, 10, f"Sorszám: {sorszam}", ln=0.5, align="C")
+    pdf.ln(5)  # Távolság a táblázat előtt
 
     # 🔹 Táblázat fejléc
     pdf.set_font("Arial", "B", 10.5)
-    column_widths = [45, 20, 20, 22, 20, 20, 22, 20]
-    headers = ["Üveg típusa", "Szélesség", "Magasság", "Darabszám", "Terület", "Adalék", "Összterület", "Ár (lei)"]
+    column_widths = [45, 20, 20, 20, 10, 20, 15, 22, 20]
+    headers = ["Üveg típusa", "Extrák", "Szélesség", "Magasság", "Db", "Terület", "Adalék", "Összterület", "Ár (lei)"]
 
     pdf.set_x(start_x)
     for i, header in enumerate(headers):
@@ -50,10 +52,20 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, outp
     if bevitel == "kezi":
         order_data["Üveg típusa"] = order_data["Termékkód"]
     for _, row in order_data.iterrows():
-        if row["Melegperem"]:
-            row["Üveg típusa"] = row["Üveg típusa"] + " MP"
+        extrak = ""
+        if "Melegperem" in row:
+            if row["Melegperem"] == "szürke" or "fekete":
+                extrak += " MP"
+        if "Távtartó" in row:
+            if row["Távtartó"] == "Távtartó":
+                extrak += " TT"
+        if "Eltérő forma" in row:
+            if row["Eltérő forma"] == "Eltérő forma":
+                extrak += " EF"
+
         col_data = [
             str(row["Üveg típusa"]),
+            str(extrak),
             str(round(row["Szélesség"])),
             str(round(row["Magasság"])),
             str(round(row["Darabszám"])),
@@ -89,18 +101,19 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, outp
         total_price += row["Ár"]
         ossz_adalek += row["Adalék"]
 
+
     # 🔹 Összegzés sor igazítása a megfelelő oszlopok alá
     pdf.set_x(start_x)
     pdf.set_font("Arial", "B", 11)
 
-    pdf.cell(sum(column_widths[:3]), 10, "Összesen:", 1,
+    pdf.cell(sum(column_widths[:4]), 10, "Összesen:", 1,
              align="C")  # Az első három oszlop (szélesség, magasság, üveg típusa) összevonva
     #pdf.cell(column_widths[5], 10, "", 1)  # Üres cella az "Összterület" alatt
-    pdf.cell(column_widths[3], 10, f"{round(ossz_darabszam)}",1, align="C")
-    pdf.cell(column_widths[4], 10, f"{ossz_sima_terulet:.2f} m²",1, align="C")
-    pdf.cell(column_widths[5], 10, f"{ossz_adalek:.2f} m²", 1, align="C")  # Adalék alatt
-    pdf.cell(column_widths[6], 10, f"{total_area:.2f} m²", 1, align="C")
-    pdf.cell(column_widths[7], 10, f"{total_price:.0f} lei", 1, align="C")  # Összesített ár
+    pdf.cell(column_widths[4], 10, f"{round(ossz_darabszam)}",1, align="C")
+    pdf.cell(column_widths[5], 10, f"{ossz_sima_terulet:.2f} m²",1, align="C")
+    pdf.cell(column_widths[6], 10, f"{ossz_adalek:.2f} m²", 1, align="C")  # Adalék alatt
+    pdf.cell(column_widths[7], 10, f"{total_area:.2f} m²", 1, align="C")
+    pdf.cell(column_widths[8], 10, f"{total_price:.0f} lei", 1, align="C")  # Összesített ár
 
     # 🔹 Aláírás és pecsét elhelyezése
     # 🔹 Megjegyzések szekció
@@ -111,6 +124,9 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, outp
     pdf.set_font("Arial", "", 9)
     pdf.cell(0, 10, "A kis terület adalék +20%, ha a terület kisebb mint 0.3 m².", ln=1)
     pdf.cell(0, 10, "Extra méret adalék +20%, ha a terület nagyobb mint 2.5 m².", ln=1)
+    pdf.cell(0, 10, "MP = Meleg peremmel", ln=1)
+    pdf.cell(0, 10, "TT = Távtartóval", ln=1)
+    pdf.cell(0, 10, "EF = Eltéro forma", ln=1)
 
     pdf.ln(20)  # Távolság az aláírások előtt
 
@@ -142,7 +158,7 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, outp
 
     # 🔹 Mentés
     buffer = io.BytesIO()
-    pdf_output = pdf.output(dest='S').encode('latin1')
+    pdf_output = pdf.output(dest='S').encode('latin-1')
     buffer = io.BytesIO(pdf_output)
     buffer.seek(0)
     return buffer

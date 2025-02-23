@@ -7,7 +7,76 @@ import numpy as np
 import generate_price_offer as gen_p
 import datetime
 import constants as C
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import toml
 
+# Próbáljuk meg beolvasni a secrets fájlt
+try:
+    secrets = toml.load(".streamlit/secrets.toml")  # Vagy "config.toml"
+    users = secrets.get("users", {})
+except Exception as e:
+    st.error(f"Hiba a secrets.toml betöltésekor: {e}")
+    users = {}
+
+
+# E-mail küldő függvény (PDF csatolásával)
+def send_email(pdf_bytes, order_data, sorszam, hatarido, user_name=None):
+    if user_name and user_name in st.secrets["users"]:  # 🔹 Bármilyen user keresése
+        user_data = st.secrets["users"][user_name]  # 🔹 User adatai
+
+        gmail_user = user_data.get("email_cim")  # 🔹 Biztos, hogy nem dob hibát
+        gmail_password = user_data.get("email_kod")
+
+        if not gmail_user or not gmail_password:
+            print(f"⚠️ Hiba: A {user_name} felhasználónál hiányzó email adatok!")
+            return
+
+        recipient = st.secrets["email"].get("recipient", "default@domain.com")  # 🔹 Ha nincs megadva, alapértelmezett
+    else:
+        print(f"⚠️ Hiba: {user_name} nem található a secrets-ben! Alapértelmezett fiókot használunk.")
+        gmail_user = st.secrets["email"]["gmail_user"]
+        gmail_password = st.secrets["email"]["gmail_password"]
+        recipient = st.secrets["email"]["recipient"]
+
+    st.write(f"📩 Email küldése **{gmail_user}** címről ide: {recipient}")
+
+
+    subject = f"Új árajánlat ellenőrzésre tőle {order_data["Megrendelo_neve"].iloc[0]} Sorszám {round(sorszam)}"
+    body = ("Egy új árajánlat érkezett ellenőrzésre.\n"
+            "Infók róla:\n"
+            f"Megrendelő: {order_data["Megrendelo_neve"].iloc[0]}\n"
+            f"Sorszám: {round(sorszam)}\n"
+            f"ELküldési idő {str(datetime.date.today())}\n"
+            f"Határidő: {hatarido}\n"
+            "Csatoltam a fájlt.")
+
+    # E-mail létrehozása
+    msg = MIMEMultipart()
+    msg["From"] = gmail_user
+    msg["To"] = recipient
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    # PDF csatolása
+    part = MIMEBase("application", "octet-stream")
+    part.set_payload(pdf_bytes)  # Közvetlenül bájtokat adunk át
+    encoders.encode_base64(part)
+    part.add_header("Content-Disposition", "attachment; filename=arajanlat.pdf")
+    msg.attach(part)
+
+    # E-mail küldése SMTP-n keresztül
+    try:
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        server.login(gmail_user, gmail_password)
+        server.sendmail(gmail_user, recipient, msg.as_string())
+        server.quit()
+        return "Sikeresen elküldve!"
+    except Exception as e:
+        return f"Hiba történt: {e}"
 
 # 🔹 TERÜLET SZÁMÍTÁS
 def terulet_szamitas(hosszusag, szelesseg, darabszam, spec_forma=False, tavtarto=False):
@@ -110,7 +179,7 @@ def optimize_cutting(lec_lista, max_length=6000):
     return bins, hulladekok
 
 
-def show():
+def show(user_role: str, user_name:str):
     # 🔹 EXCEL ADATOK BETÖLTÉSE (Cache-elés)
     @st.cache_data
     def load_excel_data(file_path):
@@ -136,16 +205,18 @@ def show():
             columns=["Megrendelő", "Hosszúság", "Szélesség", "Darabszám", "Terület", "Ár"])
 
     # 🔹 FELÜLET MEGJELENÍTÉSE
-    st.title("Termó rendelések")
+    st.title(" 🪟 Termó rendelések")
 
     bevitel = st.radio("Hogyan szeretnéd bevinni az adatokat?", ["Kézi bevitel", "Fájl feltöltése"])
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
     if bevitel == "Kézi bevitel":
-        megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista)
-        if megrendelo_neve == "Magánszemély":
-            megrendelo_neve = st.text_input("Írd be a megrendelő nevét")
-
+        if user_role != "vasarlo":
+            megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista)
+            if megrendelo_neve == "Magánszemély":
+                megrendelo_neve = st.text_input("Írd be a megrendelő nevét")
+        else:
+            megrendelo_neve = user_name
         tipus = st.radio("Válaszd ki a termó típusát", ["Duplex", "Triplex"])
         termek_kod = st.selectbox("Termék kód", duplex_codes if tipus == "Duplex" else triplex_codes)
         vastagsag = st.selectbox("Vastagság:", vastagsag_lista)
@@ -166,6 +237,12 @@ def show():
         hosszusag = st.number_input("Hosszúság (mm)", min_value=1, max_value=C.MAX_MERET,
                                     placeholder="Írj be egy számot...")
         darabszam = st.number_input("Darabszám", min_value=1, value=1, placeholder="Írj be egy számot...")
+
+        rendeles_sorszama = st.number_input("Rendelés sorszáma", step=1)
+
+        hatarido = st.date_input("Kérlek add meg az elkészítés határidejét:", datetime.date.today())
+
+
 
         [terulet, adalek, ossz_terulet] = terulet_szamitas(hosszusag, szelesseg, darabszam, forma, tavtarto)
         st.write(f" Az üveg területe {round(terulet, 2)} m², melyhez hozzájön adalékként \
@@ -213,11 +290,13 @@ def show():
         st.dataframe(st.session_state.adathalmaz, use_container_width=True)
 
         order_data_kezi = st.session_state.adathalmaz
+        order_data_kezi["Megrendelo_neve"] == megrendelo_neve
         if not order_data_kezi.empty:
             pdf_buffer = gen_p.generate_pdf(order_data_kezi,
                                             "./logo_1.jpg",
                                             "pecset.jpg",
-                                            "kezi"
+                                            "kezi",
+                                            rendeles_sorszama
                                             )
 
             st.download_button(
@@ -227,35 +306,36 @@ def show():
                 mime="application/pdf"
             )
 
-        # output = io.BytesIO()
-        # with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        #     st.session_state.adathalmaz.to_excel(writer, sheet_name="Rendelések", index=False)
-        # output.seek(0)
-        #
-        # st.download_button("⬇️ Excel letöltése",
-        #                    data=output,
-        #                    file_name=f"rendeles_{megrendelo_neve}.xlsx",
-        #                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-        # 🔄 CSV betöltése (ha van)
-        try:
-            deadlines = pd.read_csv(C.CSV_FILE)
-        except FileNotFoundError:
-            deadlines = pd.DataFrame(columns=["title", "start"])
+            elfogadas = st.checkbox("Árajánlat elfogadása")
 
-        new_date = st.date_input("Határidő:", datetime.date.today())
-        task_name = st.text_input("Feladat neve:")
 
-        if st.button("Határidő hozzáadása"):
-            if task_name:
-                new_entry = pd.DataFrame([{"title": task_name, "start": str(new_date)}])
-                deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
-                deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
-                st.success(f"✅ Hozzáadva: {task_name} - {new_date}")
-                st.rerun()
-            else:
-                st.warning("⚠️ Adj meg egy feladatot!")
+            task_name = f"{order_data_kezi["Megrendelo_neve"].iloc[0]} {round(rendeles_sorszama)}"
+            if elfogadas:
+                if user_role == "vasarlo":
+                    st.title("Árajánlat ellenőrzésre küldése e-mailben")
+                    # Checkbox az e-mail küldéshez
+                    if st.checkbox("Feltöltöm ellenőrzésre e-mailben"):
+                        result = send_email(pdf_buffer.getvalue(), order_data_kezi, rendeles_sorszama, hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
+                        if "Sikeresen" in result:
+                            st.success(result)
+                        else:
+                            st.error(result)
+                try:
+                    deadlines = pd.read_csv(C.CSV_FILE)
+                except FileNotFoundError:
+                    deadlines = pd.DataFrame(columns=["title", "start"])
 
+                if task_name:
+                    new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido)}])
+                    deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
+                    deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+                    st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
+                    #st.rerun()
+                else:
+                    st.warning("⚠️ Adj meg egy feladatot!")
+            if user_role == "vasarlo":
+                st.error(f"FIGYELEM!!! A rendelés véglegesítéséhez egy alkalmazottunk átnézi a rendelésed.")
 
     elif bevitel == "Fájl feltöltése":
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
@@ -325,7 +405,7 @@ def show():
                 axis=1
             )
 
-            pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file")
+            pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file" )
 
             st.download_button(
                 label="📥 Letöltés PDF-ként",
@@ -335,6 +415,13 @@ def show():
             )
 
             if st.button("✅ Árajánlat elfogadása"):
+
+                result = send_email(pdf_buffer.getvalue(), order_data, sorszam,
+                                    hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
+                if "Sikeresen" in result:
+                    st.success(result)
+                else:
+                    st.error(result)
                 try:
                     deadlines = pd.read_csv(C.CSV_FILE)
                 except FileNotFoundError:
@@ -343,6 +430,8 @@ def show():
                 new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
                 deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
                 deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+
+
 
             st.title("Optimalizált lécvágási Kalkulátor")
 
