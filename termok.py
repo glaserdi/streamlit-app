@@ -16,7 +16,7 @@ import toml
 
 # Próbáljuk meg beolvasni a secrets fájlt
 try:
-    secrets = toml.load(".streamlit/secrets.toml")  # Vagy "config.toml"
+    secrets = st.secrets  # Vagy "config.toml"
     users = secrets.get("users", {})
 except Exception as e:
     st.error(f"Hiba a secrets.toml betöltésekor: {e}")
