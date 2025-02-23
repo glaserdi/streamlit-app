@@ -4,3 +4,4 @@ fpdf
 openpyxl
 XlsxWriter
 streamlit-calendar
+toml
