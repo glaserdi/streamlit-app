@@ -16,7 +16,7 @@ import toml
 
 # Próbáljuk meg beolvasni a secrets fájlt
 try:
-    secrets = st.secrets  # Vagy "config.toml"
+    secrets = toml.load(".streamlit/secrets.toml")  # Vagy "config.toml"
     users = secrets.get("users", {})
 except Exception as e:
     st.error(f"Hiba a secrets.toml betöltésekor: {e}")
@@ -287,10 +287,22 @@ def show(user_role: str, user_name:str):
                 st.session_state.szelesseg = None
                 st.session_state.hosszusag = None
                 st.rerun()
+
         st.dataframe(st.session_state.adathalmaz, use_container_width=True)
 
         order_data_kezi = st.session_state.adathalmaz
-        order_data_kezi["Megrendelo_neve"] == megrendelo_neve
+
+        if "Megrendelo_neve" not in order_data_kezi.columns:
+            order_data_kezi["Megrendelo_neve"] = "Nincs megadva"
+
+        order_data_kezi.at[0, "Megrendelo_neve"] = megrendelo_neve
+
+        if "Termékkód" not in order_data_kezi.columns:
+            order_data_kezi["Termékkód"] = "Nincs megadva"
+
+        order_data_kezi.at[0, "Termékkód"] = termek_kod
+
+        st.write(order_data_kezi)
         if not order_data_kezi.empty:
             pdf_buffer = gen_p.generate_pdf(order_data_kezi,
                                             "./logo_1.jpg",
@@ -415,17 +427,17 @@ def show(user_role: str, user_name:str):
             )
 
             if st.button("✅ Árajánlat elfogadása"):
-
-                result = send_email(pdf_buffer.getvalue(), order_data, sorszam,
-                                    hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
-                if "Sikeresen" in result:
-                    st.success(result)
-                else:
-                    st.error(result)
-                try:
-                    deadlines = pd.read_csv(C.CSV_FILE)
-                except FileNotFoundError:
-                    deadlines = pd.DataFrame(columns=["title", "start"])
+                if user_role == "vasarlo" or "admin":
+                    result = send_email(pdf_buffer.getvalue(), order_data, sorszam,
+                                        hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
+                    if "Sikeresen" in result:
+                        st.success(result)
+                    else:
+                        st.error(result)
+                    try:
+                        deadlines = pd.read_csv(C.CSV_FILE)
+                    except FileNotFoundError:
+                        deadlines = pd.DataFrame(columns=["title", "start"])
 
                 new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
                 deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
@@ -433,44 +445,44 @@ def show(user_role: str, user_name:str):
 
 
 
-            st.title("Optimalizált lécvágási Kalkulátor")
-
-            # lec méretek számítása
-            lec_lista = calculate_wood_pieces(order_data,
-                                              get_retegek_by_kod(order_data.iloc[0]["Üveg típusa"], duplex_codes,
-                                                                 triplex_codes))
-            st.dataframe(order_data)
-            st.write(order_data.iloc[0]["Üveg típusa"])
-
-            # Optimalizált vágási terv kiszámítása
-            cutting_plan, hulladekok = optimize_cutting(lec_lista, 6000)
-
-            # Összes hulladék kiszámítása
-            osszes_hulladek_mm = sum(hulladekok)
-            osszes_hulladek_cm = osszes_hulladek_mm / 10
-
-            # Eredmények megjelenítése
-            st.subheader("Optimalizált Vágási Terv")
-            for i, batch in enumerate(cutting_plan):
-                st.write(f"**{i + 1}. lec (6m)**: {batch} mm")
-                st.write(f"➡️ Felhasznált hossz: {sum(batch)} mm | Hulladék: {hulladekok[i]} mm")
-
-            st.subheader("Összegzés")
-            st.write(f"**Felhasznált lecek száma:** {len(cutting_plan)} db")
-            st.write(f"**Összes hulladék:** {osszes_hulladek_mm} mm ({osszes_hulladek_cm:.2f} cm)")
-            st.write(f"**Hulladék hosszok mm-ben:** {hulladekok}")
-
-            # Letölthető vágási terv
-            cutting_df = pd.DataFrame({
-                "lec sorszám": list(range(1, len(cutting_plan) + 1)),
-                "Vágott méretek": [str(batch) for batch in cutting_plan],
-                "Hulladék (mm)": hulladekok
-            })
-
-            csv = cutting_df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="Vágási terv letöltése CSV formátumban",
-                data=csv,
-                file_name="lec_vagasi_terv.csv",
-                mime="text/csv",
-            )
+                # st.title("Optimalizált lécvágási Kalkulátor")
+                #
+                # # lec méretek számítása
+                # lec_lista = calculate_wood_pieces(order_data,
+                #                                   get_retegek_by_kod(order_data.iloc[0]["Üveg típusa"], duplex_codes,
+                #                                                      triplex_codes))
+                # st.dataframe(order_data)
+                # st.write(order_data.iloc[0]["Üveg típusa"])
+                #
+                # # Optimalizált vágási terv kiszámítása
+                # cutting_plan, hulladekok = optimize_cutting(lec_lista, 6000)
+                #
+                # # Összes hulladék kiszámítása
+                # osszes_hulladek_mm = sum(hulladekok)
+                # osszes_hulladek_cm = osszes_hulladek_mm / 10
+                #
+                # # Eredmények megjelenítése
+                # st.subheader("Optimalizált Vágási Terv")
+                # for i, batch in enumerate(cutting_plan):
+                #     st.write(f"**{i + 1}. lec (6m)**: {batch} mm")
+                #     st.write(f"➡️ Felhasznált hossz: {sum(batch)} mm | Hulladék: {hulladekok[i]} mm")
+                #
+                # st.subheader("Összegzés")
+                # st.write(f"**Felhasznált lecek száma:** {len(cutting_plan)} db")
+                # st.write(f"**Összes hulladék:** {osszes_hulladek_mm} mm ({osszes_hulladek_cm:.2f} cm)")
+                # st.write(f"**Hulladék hosszok mm-ben:** {hulladekok}")
+                #
+                # # Letölthető vágási terv
+                # cutting_df = pd.DataFrame({
+                #     "lec sorszám": list(range(1, len(cutting_plan) + 1)),
+                #     "Vágott méretek": [str(batch) for batch in cutting_plan],
+                #     "Hulladék (mm)": hulladekok
+                # })
+                #
+                # csv = cutting_df.to_csv(index=False).encode('utf-8')
+                # st.download_button(
+                #     label="Vágási terv letöltése CSV formátumban",
+                #     data=csv,
+                #     file_name="lec_vagasi_terv.csv",
+                #     mime="text/csv",
+                # )
