@@ -292,17 +292,6 @@ def show(user_role: str, user_name:str):
 
         order_data_kezi = st.session_state.adathalmaz
 
-        if "Megrendelo_neve" not in order_data_kezi.columns:
-            order_data_kezi["Megrendelo_neve"] = "Nincs megadva"
-
-        order_data_kezi.at[0, "Megrendelo_neve"] = megrendelo_neve
-
-        if "Termékkód" not in order_data_kezi.columns:
-            order_data_kezi["Termékkód"] = "Nincs megadva"
-
-        order_data_kezi.at[0, "Termékkód"] = termek_kod
-
-
         if not order_data_kezi.empty:
             pdf_buffer = gen_p.generate_pdf(order_data_kezi,
                                             "./logo_1.jpg",
