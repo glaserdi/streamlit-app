@@ -259,8 +259,7 @@ def show(user_role: str, user_name:str):
                     eladasi_ar += C.MELEGPEREM_AR.get(tipus, 0)
                 ar = ossz_terulet * eladasi_ar
 
-            ar = math.ceil(ar)
-            st.write(f"💰 **Számított ár:** {ar:.2f} lej")
+            st.write(f"💰 **Számított ár:** {round(ar,2)} lej")
 
             if st.button("Hozzáad"):
                 bevitt_adatok = {
@@ -386,12 +385,12 @@ def show(user_role: str, user_name:str):
                         lambda row: row["Egységár"] * row['Össz terület'], axis=1
                     )
 
-                    order_data["Ár"] = order_data["Ár"].apply(np.ceil)
+                    order_data["Ár"] = order_data["Ár"]
                     st.dataframe(order_data[
                                      ["Szélesség", "Magasság", "Darabszám", "Üveg vastagsága", "Melegperem", "Terület",
                                       "Adalék", "Üveg típusa", "Össz terület", "Ár"]])
 
-                    st.write(f"💰 **Számított ár:** {order_data["Ár"].sum()} lej")
+                    st.write(f"💰 **Számított ár:** {np.ceil(order_data["Ár"].sum())} lej")
                 else:
                     missing_cols = [col for col in required_columns if col not in order_data.columns]
                     st.error(f"❌ Hiányzó oszlopok: {', '.join(missing_cols)}")

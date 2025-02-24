@@ -1,7 +1,7 @@
 from fpdf import FPDF
 from datetime import datetime
 import io
-
+import numpy as np
 def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sorszam=None):
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=10)
@@ -33,8 +33,8 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
 
     # 🔹 Táblázat fejléc
     pdf.set_font("Arial", "B", 10.5)
-    column_widths = [45, 20, 20, 20, 10, 20, 15, 22, 20]
-    headers = ["Üveg típusa", "Extrák", "Szélesség", "Magasság", "Db", "Terület", "Adalék", "Összterület", "Ár (lei)"]
+    column_widths = [45, 20, 20, 20, 10, 20, 15, 22, 22]
+    headers = ["Üveg típusa", "Extrák", "Szélesség", "Magasság", "Db", "Terület", "Adalék", "Összterület", "Ár"]
 
     pdf.set_x(start_x)
     for i, header in enumerate(headers):
@@ -72,7 +72,7 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
             f"{row['Terület']:.2f}",
             f"{row['Adalék']:.2f}",
             f"{row['Össz terület']:.2f}",
-            f"{row['Ár']:.0f} lei"
+            f"{row['Ár']:.2f}"
         ]
 
         # 🔹 Az "Üveg típusa" cella több sort is elfoglalhat, ezért kiszámítjuk a magasságát
@@ -113,7 +113,7 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
     pdf.cell(column_widths[5], 10, f"{ossz_sima_terulet:.2f} m²",1, align="C")
     pdf.cell(column_widths[6], 10, f"{ossz_adalek:.2f} m²", 1, align="C")  # Adalék alatt
     pdf.cell(column_widths[7], 10, f"{total_area:.2f} m²", 1, align="C")
-    pdf.cell(column_widths[8], 10, f"{total_price:.0f} lei", 1, align="C")  # Összesített ár
+    pdf.cell(column_widths[8], 10, f"{int(np. ceil(total_price))} lei", 1, align="C")  # Összesített ár
 
     # 🔹 Aláírás és pecsét elhelyezése
     # 🔹 Megjegyzések szekció
