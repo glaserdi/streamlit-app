@@ -302,7 +302,7 @@ def show(user_role: str, user_name:str):
 
         order_data_kezi.at[0, "Termékkód"] = termek_kod
 
-        st.write(order_data_kezi)
+
         if not order_data_kezi.empty:
             pdf_buffer = gen_p.generate_pdf(order_data_kezi,
                                             "./logo_1.jpg",
