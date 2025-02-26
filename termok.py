@@ -493,18 +493,20 @@ def show(user_role: str, user_name:str):
                     else:
                         st.error(result)
                         
-                # Hozzáadott határidő
+
+                deadlines = collect_calendar_data()
+                
+                # Az új bejegyzés hozzáadása
                 new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
                 
-                # Az új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
+                # A új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
                 deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
                 
                 # Naptár frissítése
-                # Frissítjük a naptárt az új bejegyzéssel
                 events = [{"title": row["title"], "start": row["start"]} for _, row in deadlines_modified.iterrows()]
                 calendar(events)
                 
-                # Google Sheets módosítása
+                # Google Sheets frissítése
                 modify_calendar_data(deadlines_modified)
                 
                 # Visszajelzés a felhasználónak
