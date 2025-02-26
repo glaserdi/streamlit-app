@@ -178,19 +178,20 @@ def main_content():
         st.header("🗑 Határidők naplózása")
         if not deadlines.empty:
             selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni")
-            selected_day_str = selected_day.strftime("%Y-%m-%d")
-            deadlines["start"] = pd.to_datetime(deadlines["start"]).dt.strftime("%Y-%m-%d")  # Dátum átalakítása stringgé
-
+            selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
+            deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce").dt.strftime("%Y-%m-%d")  # Dátumok formázása
+        
             if st.button("Naplózás"):
                 # Az adott napra vonatkozó rendelések szűrése
-                filtered_deadlines = deadlines[deadlines["start"] == selected_day]
+                filtered_deadlines = deadlines[deadlines["start"] == selected_day_str]  # String alapú összehasonlítás
+        
+                # Ha vannak rendelések, akkor kiírjuk őket
+                if not filtered_deadlines.empty:
+                    st.write("📅 **Az adott napi rendelések:**")
+                    st.dataframe(filtered_deadlines)
+                else:
+                    st.info("Nincs rendelés ezen a napon.")
 
-            # Ha vannak rendelések, akkor kiírjuk őket
-            if not filtered_deadlines.empty:
-                st.write("📅 **Az adott napi rendelések:**")
-                st.dataframe(filtered_deadlines)
-            else:
-                st.info("Nincs rendelés ezen a napon.")
 
 
         else:
