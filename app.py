@@ -120,7 +120,7 @@ def main_content():
             st.session_state.username = None
             st.session_state.username_str = None
             st.success("✅ Kijelentkezés sikeres.")
-            st.experimental_rerun()
+
         
     if page == "Főoldal":
         st.title("📆 Határidő Naptár")
