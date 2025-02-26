@@ -372,17 +372,23 @@ def show(user_role: str, user_name:str):
                             st.success(result)
                         else:
                             st.error(result)
-                # try:
-                #     deadlines = pd.read_csv(C.CSV_FILE)
-                # except FileNotFoundError:
-                #     deadlines = pd.DataFrame(columns=["title", "start"])
-# #TODO
-#                 if task_name:
-#                     new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido)}])
-#                     deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
-#                     deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
-#                     st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
-#                     #st.rerun()
+                # Új feladat hozzáadása
+                if task_name:
+                    new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido)}])
+                    
+                    # A meglévő naptár adatokat lekérjük
+                    deadlines = collect_calendar_data()  # Adatok beolvasása a Google Sheets-ből
+                
+                    # Új bejegyzés hozzáadása
+                    deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
+                    
+                    # A frissített adatokat visszaírjuk a Google Sheets-be
+                    modify_calendar_data(deadlines)  # Az adatokat a Google Sheets-be mentjük
+                
+                    st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
+                    # Optional: frissítheted az oldalt, ha szükséges
+                    # st.rerun()
+
                 else:
                     st.warning("⚠️ Adj meg egy feladatot!")
             if user_role == "vasarlo":
