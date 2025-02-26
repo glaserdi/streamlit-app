@@ -5,3 +5,4 @@ openpyxl
 XlsxWriter
 streamlit-calendar
 toml
+gspread_dataframe
