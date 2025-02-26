@@ -380,9 +380,7 @@ def show(user_role: str, user_name:str):
                     modify_calendar_data(deadlines)  # Az adatokat a Google Sheets-be mentjük
                 
                     st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
-                    # Optional: frissítheted az oldalt, ha szükséges
-                    st.rerun()
-
+    
                 else:
                     st.warning("⚠️ Adj meg egy feladatot!")
             if user_role == "vasarlo":
