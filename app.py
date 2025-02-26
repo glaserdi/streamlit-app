@@ -1,3 +1,5 @@
+st.set_page_config(layout="wide")
+
 import streamlit as st
 import rendelesek
 import vagott_uvegek
@@ -14,7 +16,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import json
 import os
-st.set_page_config(layout="wide")
+import termok
 
 # Ellenőrizzük, hogy a titok ténylegesen létezik-e
 if "GOOGLE_SHEET_CREDENTIALS" in st.secrets:
@@ -34,7 +36,7 @@ client = gspread.authorize(creds)
 SHEET_ID = "1MrOG_Tlti2lWoVtrK8YsVsuI5UIWS8CTRRPVH1LjlEI"
 sheet = client.open_by_key(SHEET_ID)
 
-import termok
+
 
 # Streamlit gyorsítótárazás (csak ha nem változik gyakran)
 @st.cache_data
