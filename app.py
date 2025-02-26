@@ -110,7 +110,15 @@ def main_content():
         pages = []
 
     page = st.sidebar.radio("Válassz egy oldalt:", pages)
-
+    
+    if st.session_state.authenticated:
+        st.markdown(
+            f"<div style='position: fixed; top: 0; right: 10px; padding: 10px; background-color: #f1f1f1;'>"
+            f"<button style='background-color: #ff4d4d; color: white; border: none; padding: 10px; cursor: pointer;' "
+            f"onclick='window.location.reload()' id='logout_button'>Kijelentkezés</button></div>",
+            unsafe_allow_html=True
+        )
+        
     if page == "Főoldal":
         st.title("📆 Határidő Naptár")
         deadlines = collect_calendar_data()
@@ -177,8 +185,8 @@ def main_content():
     elif page == "Bejövő rendelések":
         rendelesek.show()
 
-     # Kijelentkezés gomb
-    if st.button("Kijelentkezés"):
+    # Kijelentkezés kezelése (ha a gombot megnyomják)
+    if "logout_button" in st.session_state:
         st.session_state.authenticated = False
         st.session_state.role = None
         st.session_state.username = None
