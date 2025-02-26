@@ -110,17 +110,6 @@ def main_content():
         pages = []
 
     page = st.sidebar.radio("Válassz egy oldalt:", pages)
-    
-     # 🌟 Felső sávban a kijelentkezés gomb
-    if st.session_state.authenticated and page == "Főoldal":
-        logout_button = st.button("Kijelentkezés", key="logout_button")
-        if logout_button:
-            st.session_state.authenticated = False
-            st.session_state.role = None
-            st.session_state.username = None
-            st.session_state.username_str = None
-            st.success("✅ Kijelentkezés sikeres.")
-
         
     if page == "Főoldal":
         st.title("📆 Határidő Naptár")
