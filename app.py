@@ -188,7 +188,11 @@ def main_content():
                 # Ha vannak rendelések, akkor kiírjuk őket
                 if not filtered_deadlines.empty:
                     st.write("📅 **Az adott napi rendelések:**")
-                    st.dataframe(filtered_deadlines["title", "Darabszám", "Terület"])
+                    # Oszlopnevek átnevezése egy új DataFrame-ben
+                    filtered_display = filtered_deadlines.rename(columns={"title": "Megrendelés neve"})
+                    
+                    # Csak a kívánt oszlopok megjelenítése az új nevekkel
+                    st.dataframe(filtered_display[["Megrendelés neve", "Darabszám", "Terület"]])
                 else:
                     st.info("Nincs rendelés ezen a napon.")
 
