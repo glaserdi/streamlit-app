@@ -45,7 +45,7 @@ def collect_calendar_data():
 
 
 def modify_calendar_data(df):
-    worksheet = SHEET.worksheet("Határidők")
+    worksheet = sheet.worksheet("Határidők")
 
     # 🛠️ Adatok törlése és újraírása
     worksheet.clear()
