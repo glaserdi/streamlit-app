@@ -7,7 +7,6 @@ from streamlit_calendar import calendar
 import tusolofulkek
 import kepkeretek
 import toml
-import calendar_deadlines as cal
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
