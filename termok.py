@@ -358,17 +358,14 @@ def show(user_role: str, user_name:str):
             task_name = f"{order_data_kezi["Megrendelo_neve"].iloc[0]} {round(rendeles_sorszama)}"
             if st.button("✅ Árajánlat elfogadása"):
                 if user_role == "vasarlo":
-                    st.title("Árajánlat ellenőrzésre küldése e-mailben")
-                    # Checkbox az e-mail küldéshez
-                    if st.checkbox("Feltöltöm ellenőrzésre e-mailben"):
-                        result = send_email(pdf_buffer.getvalue(),
-                                            order_data_kezi,
-                                            rendeles_sorszama, hatarido,
-                                            st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
-                        if "Sikeresen" in result:
-                            st.success(result)
-                        else:
-                            st.error(result)
+                    result = send_email(pdf_buffer.getvalue(),
+                                        order_data_kezi,
+                                        rendeles_sorszama, hatarido,
+                                        st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
+                    if "Sikeresen" in result:
+                        st.success(result)
+                    else:
+                        st.error(result)
                 # Új feladat hozzáadása
                 if task_name:
                     new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido), "Terület": str(sum(order_data_kezi["Össz terület"])), "Darabszám": str(sum(order_data_kezi["Darabszám"]))}])
