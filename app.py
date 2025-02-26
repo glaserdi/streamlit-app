@@ -151,7 +151,42 @@ def main_content():
                 st.success(
                     f"✅ '{selected_deadline}' módosítva '{new_title}' névre és új dátuma: {new_date.strftime('%Y-%m-%d')}!")
                 st.rerun()
+        st.header("➕ Új határidő hozzáadása")
+        
+        # Beviteli mezők
+        uj_megrendeles = st.text_input("Megrendelés neve")
+        uj_hatarido = st.date_input("Határidő")
+        uj_darabszam = st.number_input("Darabszám", min_value=1, step=1)
+        uj_terulet = st.text_input("Terület")
+        
+        if st.button("Hozzáadás"):
+            if uj_megrendeles and uj_hatarido and uj_terulet:
+                # Új bejegyzés létrehozása
+                new_entry = pd.DataFrame([{
+                    "title": uj_megrendeles,
+                    "start": uj_hatarido.strftime("%Y-%m-%d"),
+                    "Darabszám": uj_darabszam,
+                    "Terület": uj_terulet
+                }])
+        
+                # Meglévő adatok lekérése
+                deadlines = collect_calendar_data()
+        
+                # Új adat hozzáfűzése
+                deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
+        
+                # Módosítások mentése a Google Sheets-be
+                modify_calendar_data(deadlines)
+        
+                # Gyorsítótár törlése, hogy a friss adatok megjelenjenek
+                collect_calendar_data.clear()
+        
+                st.success(f"✅ A következő határidő hozzáadva: {uj_megrendeles} - {uj_hatarido.strftime('%Y-%m-%d')}")
+                st.experimental_rerun()
+            else:
+                st.error("❌ Minden mezőt ki kell tölteni!")
 
+        
         st.header("🗑️ Határidő törlése")
         if not deadlines.empty:
             selected_deadline = st.selectbox("Válassz egy határidőt törlésre:", deadlines["title"])
