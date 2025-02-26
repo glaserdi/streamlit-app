@@ -502,10 +502,6 @@ def show(user_role: str, user_name:str):
                 # A új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
                 deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
                 
-                # Naptár frissítése
-                events = [{"title": row["title"], "start": row["start"]} for _, row in deadlines_modified.iterrows()]
-                calendar(events)
-                
                 # Google Sheets frissítése
                 modify_calendar_data(deadlines_modified)
                 
