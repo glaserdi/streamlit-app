@@ -111,8 +111,8 @@ def main_content():
 
     page = st.sidebar.radio("Válassz egy oldalt:", pages)
     
-    # 🌟 Felső sávban a kijelentkezés gomb
-    if st.session_state.authenticated:
+     # 🌟 Felső sávban a kijelentkezés gomb
+    if st.session_state.authenticated and page == "Főoldal":
         logout_button = st.button("Kijelentkezés", key="logout_button")
         if logout_button:
             st.session_state.authenticated = False
