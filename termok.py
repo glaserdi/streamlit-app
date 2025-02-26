@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import io
-import math
 import read_excel
 import numpy as np
 import generate_price_offer as gen_p
@@ -13,6 +11,10 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import toml
+from app import modify_calendar_data, collect_calendar_data
+
+
+deadlines = collect_calendar_data()
 
 # Próbáljuk meg beolvasni a secrets fájlt
 try:
@@ -217,6 +219,11 @@ def show(user_role: str, user_name:str):
                 megrendelo_neve = st.text_input("Írd be a megrendelő nevét")
         else:
             megrendelo_neve = user_name
+
+        rendeles_sorszama = st.number_input("Rendelés sorszáma", step=1)
+
+        hatarido = st.date_input("Kérlek add meg az elkészítés határidejét:", datetime.date.today())
+
         tipus = st.radio("Válaszd ki a termó típusát", ["Duplex", "Triplex"])
         termek_kod = st.selectbox("Termék kód", duplex_codes if tipus == "Duplex" else triplex_codes)
         vastagsag = st.selectbox("Vastagság:", vastagsag_lista)
@@ -225,10 +232,16 @@ def show(user_role: str, user_name:str):
         col1, col2 = st.columns(2)
         with col1:
             argon = st.checkbox("Argonnal")
+            if argon:
+                argon = "Argon"
             melegperem = st.checkbox("Meleg perem")
         with col2:
             tavtarto = st.checkbox("Távtartó")
+            if tavtarto:
+                tavtarto = "Távtartó"
             forma = st.checkbox("Eltérő forma")
+            if forma:
+                forma = "Eltérő forma"
 
         melegperem_szin = st.radio("Melegperem színe", ["Fekete", "Szürke"]) if melegperem else None
 
@@ -237,10 +250,6 @@ def show(user_role: str, user_name:str):
         hosszusag = st.number_input("Hosszúság (mm)", min_value=1, max_value=C.MAX_MERET,
                                     placeholder="Írj be egy számot...")
         darabszam = st.number_input("Darabszám", min_value=1, value=1, placeholder="Írj be egy számot...")
-
-        rendeles_sorszama = st.number_input("Rendelés sorszáma", step=1)
-
-        hatarido = st.date_input("Kérlek add meg az elkészítés határidejét:", datetime.date.today())
 
 
 
@@ -261,11 +270,16 @@ def show(user_role: str, user_name:str):
 
             st.write(f"💰 **Számított ár:** {round(ar,2)} lej")
 
-            if st.button("Hozzáad"):
+        if st.button("Hozzáad"):
+            if megrendelo_neve and termek_kod and tipus and vastagsag and rendeles_sorszama:
+                uj_sorszam = 1 if st.session_state.adathalmaz.empty else int(st.session_state.adathalmaz[
+                                                                             "Sorszám"].max()) + 1
+
                 bevitt_adatok = {
+                    "Sorszám": uj_sorszam,
                     "Megrendelo_neve": megrendelo_neve,
                     "Termékkód": termek_kod,
-                    "Vastagság": vastagsag,
+                    "Üveg vastagsága": vastagsag,
                     "Magasság": hosszusag,
                     "Szélesség": szelesseg,
                     "Terület": terulet,
@@ -274,23 +288,46 @@ def show(user_role: str, user_name:str):
                     "Darabszám": darabszam,
                     "Ár": ar,
                     "Argon": argon,
-                    "Távartó": tavtarto,
+                    "Távtartó": tavtarto,
                     "Melegperem": melegperem_szin,
                     "Eltérő forma": forma,
                     "Üveg típusa": tipus
                 }
+
                 st.session_state.adathalmaz = pd.concat(
                     [st.session_state.adathalmaz, pd.DataFrame([bevitt_adatok])],
                     ignore_index=True
                 )
-                st.session_state.szelesseg = None
-                st.session_state.hosszusag = None
-                st.rerun()
 
-        st.dataframe(st.session_state.adathalmaz, use_container_width=True)
+                st.success("Sor hozzáadva!")
+                st.rerun()
+            else:
+                st.warning("Kérlek, töltsd ki a kötelező mezőket!")
+
+        # Adattábla megjelenítése
+        if not st.session_state.adathalmaz.empty:
+            st.dataframe(st.session_state.adathalmaz[[
+                "Sorszám", "Termékkód", "Szélesség", "Magasság", "Darabszám", "Üveg vastagsága",
+                "Melegperem", "Távtartó", "Eltérő forma", "Terület", "Adalék", "Össz terület", "Ár"
+            ]], use_container_width=True, hide_index=True)
+
+            # Sor törlése
+            st.session_state.adathalmaz["Sorszám"] = st.session_state.adathalmaz["Sorszám"].astype(int)
+            sorszamok = st.session_state.adathalmaz["Sorszám"].tolist()
+            st.header("Elrontottad? Töröld ki ✏️")
+
+            sorszam_to_delete = st.selectbox("Válassz sorszámot törléshez:", sorszamok)
+
+            if st.button("Sor törlése"):
+                st.session_state.adathalmaz = st.session_state.adathalmaz[
+                    st.session_state.adathalmaz["Sorszám"] != sorszam_to_delete
+                    ].reset_index(drop=True)
+                st.success(f"A(z) {sorszam_to_delete}. sor törölve!")
+                st.rerun()
+        else:
+            st.warning("Nincs adat a táblázatban!")
 
         order_data_kezi = st.session_state.adathalmaz
-
         if not order_data_kezi.empty:
             pdf_buffer = gen_p.generate_pdf(order_data_kezi,
                                             "./logo_1.jpg",
@@ -298,7 +335,9 @@ def show(user_role: str, user_name:str):
                                             "kezi",
                                             rendeles_sorszama
                                             )
+            gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data_kezi, "kezi", rendeles_sorszama, hatarido)
 
+            st.header("Árajánlat generálása 🧮")
             st.download_button(
                 label="📥 Letöltés PDF-ként",
                 data=pdf_buffer,
@@ -306,7 +345,16 @@ def show(user_role: str, user_name:str):
                 mime="application/pdf"
             )
 
+            if user_role != "vasarlo":
+                st.header("Gyártási adatok generálása 💡")
+                st.download_button(
+                    label="📥 Letöltés PDF-ként",
+                    data=gyartas_pdf_buffer,
+                    file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
+                    mime="application/pdf"
+                )
 
+            st.header("Rendelés leadása 🛒")
             elfogadas = st.checkbox("Árajánlat elfogadása")
 
 
@@ -316,22 +364,25 @@ def show(user_role: str, user_name:str):
                     st.title("Árajánlat ellenőrzésre küldése e-mailben")
                     # Checkbox az e-mail küldéshez
                     if st.checkbox("Feltöltöm ellenőrzésre e-mailben"):
-                        result = send_email(pdf_buffer.getvalue(), order_data_kezi, rendeles_sorszama, hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
+                        result = send_email(pdf_buffer.getvalue(),
+                                            order_data_kezi,
+                                            rendeles_sorszama, hatarido,
+                                            st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
                         if "Sikeresen" in result:
                             st.success(result)
                         else:
                             st.error(result)
-                try:
-                    deadlines = pd.read_csv(C.CSV_FILE)
-                except FileNotFoundError:
-                    deadlines = pd.DataFrame(columns=["title", "start"])
-
-                if task_name:
-                    new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido)}])
-                    deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
-                    deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
-                    st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
-                    #st.rerun()
+                # try:
+                #     deadlines = pd.read_csv(C.CSV_FILE)
+                # except FileNotFoundError:
+                #     deadlines = pd.DataFrame(columns=["title", "start"])
+# #TODO
+#                 if task_name:
+#                     new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido)}])
+#                     deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
+#                     deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+#                     st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
+#                     #st.rerun()
                 else:
                     st.warning("⚠️ Adj meg egy feladatot!")
             if user_role == "vasarlo":
@@ -406,6 +457,9 @@ def show(user_role: str, user_name:str):
             )
 
             pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file" )
+            gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, bevitel="file", sorszam=None)
+
+            st.header("Árajánlat generálása 🧮")
 
             st.download_button(
                 label="📥 Letöltés PDF-ként",
@@ -414,22 +468,33 @@ def show(user_role: str, user_name:str):
                 mime="application/pdf"
             )
 
+            if user_role != "vasarlo":
+                st.header("Gyártási adatok generálása 💡")
+                st.download_button(
+                    label="📥 Letöltés PDF-ként",
+                    data=gyartas_pdf_buffer,
+                    file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
+                    mime="application/pdf"
+                )
+
+            st.header("Rendelés leadása 🛒")
             if st.button("✅ Árajánlat elfogadása"):
-                if user_role == "vasarlo" or "admin":
+                if user_role not in ["glaserdi_fonok", "glaserdi_alkalmazott"]:
                     result = send_email(pdf_buffer.getvalue(), order_data, sorszam,
                                         hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
                     if "Sikeresen" in result:
                         st.success(result)
                     else:
                         st.error(result)
-                    try:
-                        deadlines = pd.read_csv(C.CSV_FILE)
-                    except FileNotFoundError:
-                        deadlines = pd.DataFrame(columns=["title", "start"])
+#TODO
+                    # try:
+                    #     deadlines = pd.read_csv(C.CSV_FILE)
+                    # except FileNotFoundError:
+                    #     deadlines = pd.DataFrame(columns=["title", "start"])
 
                 new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
-                deadlines = pd.concat([deadlines, new_entry], ignore_index=True)
-                deadlines.to_csv(C.CSV_FILE, index=False)  # 📂 Fájlba mentés
+                deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
+                modify_calendar_data(deadlines_modified)
 
 
 
