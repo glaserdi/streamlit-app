@@ -18,7 +18,17 @@ import os
 st.set_page_config(layout="wide")
 
 # Titkos adatokat lekérjük a Streamlit Secrets-ből
-google_credentials = json.loads(os.getenv("GOOGLE_SHEET_CREDENTIALS"))
+google_credentials = os.getenv("GOOGLE_SHEET_CREDENTIALS")
+
+# Ha a secret nem található
+if google_credentials is None:
+    raise ValueError("A GOOGLE_SHEET_CREDENTIALS titok nem található!")
+
+# Ha megtaláltuk a secretet, próbáljuk meg betölteni JSON-ként
+try:
+    google_credentials = json.loads(google_credentials)
+except json.JSONDecodeError:
+    raise ValueError("A GOOGLE_SHEET_CREDENTIALS titok formátuma nem megfelelő.")
 
 # Google Sheets hitelesítés
 creds = Credentials.from_service_account_info(google_credentials, scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"])
