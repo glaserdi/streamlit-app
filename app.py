@@ -16,14 +16,16 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(layout="wide")
 
-SHEET_ID = "1MrOG_Tlti2lWoVtrK8YsVsuI5UIWS8CTRRPVH1LjlEI"  # Google Táblázat azonosítója (URL-ből másolható)
+# Titkos adatokat lekérjük a Streamlit Secrets-ből
+google_credentials = json.loads(os.getenv("GOOGLE_SHEET_CREDENTIALS"))
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets", 
-          "https://www.googleapis.com/auth/drive"]
+# Google Sheets hitelesítés
+creds = Credentials.from_service_account_info(google_credentials, scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"])
 
-# Hitelesítés
-creds = Credentials.from_service_account_file("google_sheets_credentials.json", scopes=SCOPES)
 client = gspread.authorize(creds)
+
+# A Google Táblázat elérése
+SHEET_ID = "1MrOG_Tlti2lWoVtrK8YsVsuI5UIWS8CTRRPVH1LjlEI"
 sheet = client.open_by_key(SHEET_ID)
 
 # Streamlit gyorsítótárazás (csak ha nem változik gyakran)
