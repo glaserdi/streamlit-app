@@ -18,7 +18,7 @@ st.set_page_config(layout="wide")
 
 # Ellenőrizzük, hogy a titok ténylegesen létezik-e
 if "GOOGLE_SHEET_CREDENTIALS" in st.secrets:
-    google_credentials = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"])
+    google_credentials = st.secrets["GOOGLE_SHEET_CREDENTIALS"]
 else:
     raise ValueError("A GOOGLE_SHEET_CREDENTIALS titok nem található!")
 
