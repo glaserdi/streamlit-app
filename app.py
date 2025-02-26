@@ -175,7 +175,7 @@ def main_content():
         else:
             st.info("Nincsenek határidők.")
             
-        st.header("🗑 Határidők naplózása")
+        st.header("📘 Határidők naplózása")
         if not deadlines.empty:
             selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni")
             selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
