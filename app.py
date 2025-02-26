@@ -178,8 +178,16 @@ def main_content():
             selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni")
 
             if st.button("Naplózás"):
-                deadlines = deadlines[deadlines["start"] == selected_day]
-                st.write(deadlines)
+                # Az adott napra vonatkozó rendelések szűrése
+                filtered_deadlines = deadlines[deadlines["start"] == selected_day]
+            
+                # Ha vannak rendelések, akkor kiírjuk őket
+                if not filtered_deadlines.empty:
+                    st.write("📅 **Az adott napi rendelések:**")
+                    st.dataframe(filtered_deadlines[["title"]])
+                else:
+                    st.info("Nincs rendelés ezen a napon.")
+
 
         else:
             st.info("Nincsenek határidők.")
