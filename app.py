@@ -1,6 +1,5 @@
 import streamlit as st
 import rendelesek
-import termok
 import vagott_uvegek
 import pandas as pd
 from streamlit_calendar import calendar
@@ -17,18 +16,14 @@ import json
 import os
 st.set_page_config(layout="wide")
 
-# Titkos adatokat lekérjük a Streamlit Secrets-ből
-google_credentials = os.getenv("GOOGLE_SHEET_CREDENTIALS")
-
-# Ha a secret nem található
-if google_credentials is None:
-    raise ValueError("A GOOGLE_SHEET_CREDENTIALS titok nem található!")
-
-# Ha megtaláltuk a secretet, próbáljuk meg betölteni JSON-ként
 try:
+    google_credentials = st.secrets["GOOGLE_SHEET_CREDENTIALS"]
     google_credentials = json.loads(google_credentials)
+    st.write("✅ GOOGLE_SHEET_CREDENTIALS betöltve!")
+except KeyError:
+    st.error("❌ A GOOGLE_SHEET_CREDENTIALS titok nem található!")
 except json.JSONDecodeError:
-    raise ValueError("A GOOGLE_SHEET_CREDENTIALS titok formátuma nem megfelelő.")
+    st.error("❌ JSON formátumú hiba a GOOGLE_SHEET_CREDENTIALS titokban!")
 
 # Google Sheets hitelesítés
 creds = Credentials.from_service_account_info(google_credentials, scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"])
@@ -38,6 +33,8 @@ client = gspread.authorize(creds)
 # A Google Táblázat elérése
 SHEET_ID = "1MrOG_Tlti2lWoVtrK8YsVsuI5UIWS8CTRRPVH1LjlEI"
 sheet = client.open_by_key(SHEET_ID)
+
+import termok
 
 # Streamlit gyorsítótárazás (csak ha nem változik gyakran)
 @st.cache_data
