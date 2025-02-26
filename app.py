@@ -125,6 +125,7 @@ def main_content():
     if page == "Főoldal":
         st.title("📆 Határidő Naptár")
         deadlines = collect_calendar_data()
+        filtered_deadlines = pd.DataFrame()
         try:
             deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce")
 
