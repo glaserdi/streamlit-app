@@ -6,3 +6,4 @@ XlsxWriter
 streamlit-calendar
 toml
 gspread_dataframe
+oauth2client
