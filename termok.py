@@ -387,7 +387,7 @@ def show(user_role: str, user_name:str):
                 
                     st.success(f"✅ A kérésed hozzáadtuk a naptárunkhoz: {task_name} - {hatarido}")
                     # Optional: frissítheted az oldalt, ha szükséges
-                    st.experimental_rerun()
+                    st.rerun()
 
                 else:
                     st.warning("⚠️ Adj meg egy feladatot!")
