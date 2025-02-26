@@ -182,7 +182,7 @@ def main_content():
                 collect_calendar_data.clear()
         
                 st.success(f"✅ A következő határidő hozzáadva: {uj_megrendeles} - {uj_hatarido.strftime('%Y-%m-%d')}")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("❌ Minden mezőt ki kell tölteni!")
 
