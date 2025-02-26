@@ -492,15 +492,24 @@ def show(user_role: str, user_name:str):
                         st.success(result)
                     else:
                         st.error(result)
-#TODO
-                    # try:
-                    #     deadlines = pd.read_csv(C.CSV_FILE)
-                    # except FileNotFoundError:
-                    #     deadlines = pd.DataFrame(columns=["title", "start"])
-
+                        
+                # Hozzáadott határidő
                 new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
+                
+                # Az új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
                 deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
+                
+                # Naptár frissítése
+                # Frissítjük a naptárt az új bejegyzéssel
+                events = [{"title": row["title"], "start": row["start"]} for _, row in deadlines_modified.iterrows()]
+                calendar(events)
+                
+                # Google Sheets módosítása
                 modify_calendar_data(deadlines_modified)
+                
+                # Visszajelzés a felhasználónak
+                st.success(f"✅ Új határidő hozzáadva: {megrendelo_neve} {sorszam}, Dátum: {hatarido}")
+
 
 
 
