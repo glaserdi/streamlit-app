@@ -172,6 +172,17 @@ def main_content():
                 st.rerun()
         else:
             st.info("Nincsenek határidők.")
+            
+        st.header("🗑 Határidők naplózása")
+        if not deadlines.empty:
+            selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni")
+
+            if st.button("Naplózás"):
+                deadlines = deadlines[deadlines["start"] == selected_day]
+                    st.write(deadlines)
+
+        else:
+            st.info("Nincsenek határidők.")
 
     elif page == "Termó számítások":
         termok.show(st.session_state.role, st.session_state.username_str)
