@@ -11,20 +11,25 @@ import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread_dataframe import set_with_dataframe
+import gspread
+from google.oauth2.service_account import Credentials
 
 st.set_page_config(layout="wide")
 
 SHEET_ID = "1MrOG_Tlti2lWoVtrK8YsVsuI5UIWS8CTRRPVH1LjlEI"  # Google Táblázat azonosítója (URL-ből másolható)
-SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
-         "https://www.googleapis.com/auth/drive"]
 
-# 📌 Kapcsolódás Google Sheets API-hoz
-CREDS = ServiceAccountCredentials.from_json_keyfile_name("google_sheets_credentials.json", SCOPE)
-CLIENT = gspread.authorize(CREDS)
-SHEET = CLIENT.open_by_key(SHEET_ID)  # Megnyitjuk a táblázatot
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", 
+          "https://www.googleapis.com/auth/drive"]
+
+# Hitelesítés
+creds = Credentials.from_service_account_file("google_sheets_credentials.json", scopes=SCOPES)
+client = gspread.authorize(creds)
+sheet = client.open_by_key(SHEET_ID)
+
+# Streamlit gyorsítótárazás (csak ha nem változik gyakran)
 @st.cache_data
 def collect_calendar_data():
-    worksheet = SHEET.worksheet("Határidők")
+    worksheet = sheet.worksheet("Határidők")
     df = pd.DataFrame(worksheet.get_all_records())
     return df
 
