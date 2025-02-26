@@ -355,11 +355,8 @@ def show(user_role: str, user_name:str):
                 )
 
             st.header("Rendelés leadása 🛒")
-            elfogadas = st.checkbox("Árajánlat elfogadása")
-
-
             task_name = f"{order_data_kezi["Megrendelo_neve"].iloc[0]} {round(rendeles_sorszama)}"
-            if elfogadas:
+            if st.button("✅ Árajánlat elfogadása"):
                 if user_role == "vasarlo":
                     st.title("Árajánlat ellenőrzésre küldése e-mailben")
                     # Checkbox az e-mail küldéshez
