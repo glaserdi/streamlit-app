@@ -179,7 +179,7 @@ def main_content():
 
             if st.button("Naplózás"):
                 deadlines = deadlines[deadlines["start"] == selected_day]
-                    st.write(deadlines)
+                st.write(deadlines)
 
         else:
             st.info("Nincsenek határidők.")
