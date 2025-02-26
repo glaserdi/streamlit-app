@@ -177,11 +177,14 @@ def main_content():
     elif page == "Bejövő rendelések":
         rendelesek.show()
 
-    # if st.button("Kijelentkezés"):
-    #     st.session_state.authenticated = False
-    #     st.session_state.role = None
-    #     st.session_state.username = None
-    #     st.rerun()
+     # Kijelentkezés gomb
+    if st.button("Kijelentkezés"):
+        st.session_state.authenticated = False
+        st.session_state.role = None
+        st.session_state.username = None
+        st.session_state.username_str = None
+        st.success("✅ Kijelentkezés sikeres.")
+        st.rerun()
 
 # 🔥 **Fő programlogika**
 if not st.session_state.authenticated:
