@@ -12,7 +12,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 import toml
 from app import modify_calendar_data, collect_calendar_data
-
+import json
 
 deadlines = collect_calendar_data()
 
