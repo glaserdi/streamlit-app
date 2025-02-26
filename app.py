@@ -188,7 +188,7 @@ def main_content():
                 # Ha vannak rendelések, akkor kiírjuk őket
                 if not filtered_deadlines.empty:
                     st.write("📅 **Az adott napi rendelések:**")
-                    st.dataframe(filtered_deadlines)
+                    st.dataframe(filtered_deadlines["title", "Darabszám", "Terület"])
                 else:
                     st.info("Nincs rendelés ezen a napon.")
 
