@@ -126,6 +126,7 @@ def main_content():
         st.title("📆 Határidő Naptár")
         deadlines = collect_calendar_data()
         filtered_deadlines = pd.DataFrame()
+        
         try:
             deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce")
 
@@ -177,6 +178,8 @@ def main_content():
         st.header("🗑 Határidők naplózása")
         if not deadlines.empty:
             selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni")
+            selected_day_str = selected_day.strftime("%Y-%m-%d")
+            deadlines["start"] = pd.to_datetime(deadlines["start"]).dt.strftime("%Y-%m-%d")  # Dátum átalakítása stringgé
 
             if st.button("Naplózás"):
                 # Az adott napra vonatkozó rendelések szűrése
