@@ -498,7 +498,7 @@ def show(user_role: str, user_name:str):
                 
                 # Az új bejegyzés hozzáadása
                 # new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
-                pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": str(hatarido), "Terület": str(sum(order_data["Össz terület"])), "Darabszám": str(sum(order_data["Darabszám"]))}])
+                new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": str(hatarido), "Terület": str(sum(order_data["Össz terület"])), "Darabszám": str(sum(order_data["Darabszám"]))}])
                 # A új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
                 deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
                 
