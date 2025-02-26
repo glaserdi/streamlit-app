@@ -179,13 +179,14 @@ def main_content():
 
             if st.button("Naplózás"):
                 # Az adott napra vonatkozó rendelések szűrése
-                for element in deadlines: 
-                    if element["start"] == selected_day:
-                        st.write(element)
-            
-                # Ha vannak rendelések, akkor kiírjuk őket
-                if filtered_deadlines.empty:
-                    st.info("Nincs rendelés ezen a napon.")
+                filtered_deadlines = deadlines[deadlines["start"] == selected_day]
+
+            # Ha vannak rendelések, akkor kiírjuk őket
+            if not filtered_deadlines.empty:
+                st.write("📅 **Az adott napi rendelések:**")
+                st.dataframe(filtered_deadlines)
+            else:
+                st.info("Nincs rendelés ezen a napon.")
 
 
         else:
