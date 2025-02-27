@@ -1,5 +1,5 @@
 import streamlit as st
-st.set_page_config(layout="wide")
+st.set_page_config(layout="centered")
 import rendelesek
 import vagott_uvegek
 import pandas as pd
