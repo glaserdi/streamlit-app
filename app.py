@@ -1,4 +1,5 @@
 import streamlit as st
+t.set_page_config(layout="wide")
 import rendelesek
 import vagott_uvegek
 import pandas as pd
@@ -140,7 +141,7 @@ def main_content():
                                     "right": "dayGridMonth,listMonth"  # Nézetválasztó: havi és lista nézet
                                 },
                                 "weight": 1200,  # Nagyobb naptár
-                                "contentWeight": 700  # Tartalom nagyítása
+                                "contentWeight": 1200  # Tartalom nagyítása
                                }
             
             calendar(events, options=calendar_options)
