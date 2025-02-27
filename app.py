@@ -141,7 +141,7 @@ def main_content():
                                     "right": "dayGridMonth,listMonth"  # Nézetválasztó: havi és lista nézet
                                 },
                                 "weight": 1200,  # Nagyobb naptár
-                                "contentWeight": 1200  # Tartalom nagyítása
+                                "contentWeight": 800  # Tartalom nagyítása
                                }
             
             calendar(events, options=calendar_options)
