@@ -316,12 +316,16 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {sorszam} \tHatárideje: {hatarido}", ln=0.1, align="C")
         pdf.ln(5)
 
+         
+        
         pdf.set_x(10)
         pdf.set_font("Arial", "B", 10.5)
         for i, header in enumerate(headers):
             pdf.cell(column_widths[i], 10, header, 1, align="C")
         pdf.ln()
         pdf.set_font("Arial", "", 10)
+        pdf.set_text_color(0, 0, 0)  # Reset to black for the text
+        pdf.set_font("Arial", "", 10)  # Normal font
 
         for row in data:
             start_x = pdf.get_x()
