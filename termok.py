@@ -392,6 +392,7 @@ def show(user_role: str, user_name:str):
         if uploaded_file:
             try:
                 order_data = read_excel.extract_order_data(uploaded_file)
+                st.session_state.adathalmaz = order_data 
                 megrendelo_neve = order_data['Megrendelő_neve'].iloc[0]
                 hatarido = str(order_data['Határidő'].iloc[0]).split(" ")[0]
                 sorszam = order_data['Sorszám_Megrendelés'].iloc[0]
