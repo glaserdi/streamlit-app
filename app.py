@@ -1,5 +1,4 @@
 import streamlit as st
-st.set_page_config(layout="wide")
 import rendelesek
 import vagott_uvegek
 import pandas as pd
@@ -143,10 +142,9 @@ def main_content():
                                 "height": 800,  # Megnövelt méret
                                 "contentHeight": 700
                                }
-            # Középre igazítás és szélesség korlátozása max. 1200px-re
-            st.write("<div style='max-width: 800px; margin: auto;'>", unsafe_allow_html=True)
+            
             calendar(events, options=calendar_options)
-            st.write("</div>", unsafe_allow_html=True)
+    
 
         except Exception as e:
             st.error(f"Hiba történt az adatok beolvasása közben: {e}")
