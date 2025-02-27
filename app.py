@@ -237,10 +237,10 @@ def main_content():
                 else:
                     st.info("Nincs rendelés ezen a napon.")
 
-        if st.button("Cache törlése"):
+        if st.button("Naptár frissítése"):
             st.cache_data.clear()
             st.cache_resource.clear()
-            st.success("Cache törölve! ✅")
+            st.rerun()
 
         else:
             st.info("Nincsenek határidők.")
