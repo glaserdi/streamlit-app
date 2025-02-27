@@ -140,8 +140,6 @@ def main_content():
                                     "center": "title",  # Középen a cím
                                     "right": "dayGridMonth,listMonth"  # Nézetválasztó: havi és lista nézet
                                 },
-                                "weight": 1200,  # Nagyobb naptár
-                                "contentWeight": 800  # Tartalom nagyítása
                                }
             
             calendar(events, options=calendar_options)
