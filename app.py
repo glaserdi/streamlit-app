@@ -128,9 +128,9 @@ def main_content():
                       df.iterrows()]
 
             if st.button("🔄 Naptár frissítése"):
-            st.cache_data.clear()
-            st.cache_resource.clear()
-            st.rerun()
+                st.cache_data.clear()
+                st.cache_resource.clear()
+                st.rerun()
             
             # Naptár megjelenítése
             calendar_options = {"initialView": "dayGridMonth",  # Alapértelmezett nézet: havi nézet
