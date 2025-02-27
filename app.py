@@ -225,10 +225,6 @@ def main_content():
         if not deadlines.empty:
             selected_day = date = st.date_input(
     "Válassz egy dátumot", 
-    min_value=datetime.date(2020, 1, 1),  # Itt szükséges a datetime modul
-    max_value=datetime.date(2025, 12, 31),
-    value=datetime.date.today(), 
-    help="Válassz egy dátumot a hétfővel kezdődő naptárban",
     locale='hu'
 )
             selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
