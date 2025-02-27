@@ -390,15 +390,21 @@ def show(user_role: str, user_name:str):
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
 
         if uploaded_file:
-            try:
+             try:
+                # Beolvassuk a fájlt és frissítjük a session-ban tárolt adatokat
                 order_data = read_excel.extract_order_data(uploaded_file)
-                st.session_state.adathalmaz = order_data 
+                st.session_state.adathalmaz = order_data  # Frissítjük a session-ban tárolt adatokat
+        
+                # A legfrissebb adatokat dolgozzuk fel és jelenítjük meg a táblázatot
                 megrendelo_neve = order_data['Megrendelő_neve'].iloc[0]
                 hatarido = str(order_data['Határidő'].iloc[0]).split(" ")[0]
                 sorszam = order_data['Sorszám_Megrendelés'].iloc[0]
+        
                 arlista_szint = 2 if not df_cegek_arlista.loc[
                     df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
+                
                 order_data["Megrendelo_neve"] = megrendelo_neve
+                 
                 required_columns = ["Szélesség", "Magasság", "Üveg típusa"]
                 if all(col in order_data.columns for col in required_columns):
 
@@ -455,8 +461,12 @@ def show(user_role: str, user_name:str):
                 axis=1
             )
 
-            pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file" )
-            gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, bevitel="file", sorszam=None)
+            # PDF generálás frissített adat alapján
+            pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file")
+            gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, "file", sorszam, hatarido)  # Az új adatokat kell átadni itt is!
+
+            # pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file" )
+            # gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, bevitel="file", sorszam=None)
 
             st.header("Árajánlat generálása 🧮")
 
@@ -470,11 +480,11 @@ def show(user_role: str, user_name:str):
             if user_role != "vasarlo":
                 st.header("Gyártási adatok generálása 💡")
                 st.download_button(
-                    label="📥 Letöltés PDF-ként",
-                    data=gyartas_pdf_buffer,
-                    file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
-                    mime="application/pdf"
-                )
+                label="📥 Letöltés PDF-ként",
+                data=gyartas_pdf_buffer,
+                file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
+                mime="application/pdf"
+            )
 
             st.header("Rendelés leadása 🛒")
             if st.button("✅ Árajánlat elfogadása"):
