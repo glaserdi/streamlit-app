@@ -145,7 +145,7 @@ def main_content():
                                }
             # Középre igazítás és szélesség korlátozása max. 1200px-re
             st.write("<div style='max-width: 1200px; margin: auto;'>", unsafe_allow_html=True)
-            calendar(events=[], options=calendar_options)
+            calendar(events, options=calendar_options)
             st.write("</div>", unsafe_allow_html=True)
 
         except Exception as e:
