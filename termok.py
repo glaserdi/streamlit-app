@@ -390,7 +390,7 @@ def show(user_role: str, user_name:str):
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
 
         if uploaded_file:
-             try:
+            try:
                 # Beolvassuk a fájlt és frissítjük a session-ban tárolt adatokat
                 order_data = read_excel.extract_order_data(uploaded_file)
                 st.session_state.adathalmaz = order_data  # Frissítjük a session-ban tárolt adatokat
