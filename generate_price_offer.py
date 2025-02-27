@@ -122,12 +122,13 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
     pdf.cell(0, 10, "Megjegyzések:", ln=1)
 
     pdf.set_font("Arial", "", 7)
-    pdf.cell(0, 10, "A kis terület adalék +20%, ha a terület kisebb mint 0.3 m².", ln=0.1)
-    pdf.cell(0, 10, "Extra méret adalék +20%, ha a terület nagyobb mint 2.5 m².", ln=0.1)
+    pdf.cell(0, 10, "A kis terület adalék +20%, ha a terület kisebb mint 0.3 m².")
     pdf.set_xy(105, pdf.get_y() - 10) 
-    pdf.cell(0, 10, "MP = Meleg peremmel", ln=0.1)
-    pdf.cell(0, 10, "TT = Távtartóval", ln=0.1)
-    pdf.cell(0, 10, "EF = Eltéro forma", ln=0.1)
+    pdf.cell(0, 10, "MP = Meleg peremmel")
+    pdf.cell(0, 10, "Extra méret adalék +20%, ha a terület nagyobb mint 2.5 m².")
+    pdf.set_xy(105, pdf.get_y() - 10) 
+    pdf.cell(0, 10, "TT = Távtartóval")
+    pdf.cell(0, 10, "EF = Eltéro forma")
 
     pdf.ln(20)  # Távolság az aláírások előtt
 
