@@ -328,7 +328,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             start_y = pdf.get_y()
 
             # Check if the current row should be bold and red
-            if float(row[5]/row[4]) >= 2.5 and "6" not in row[1]:
+            if (float(row[5])/float(row[4]) >= 2.5) and "6" not in row[1]:
                 pdf.set_text_color(255, 0, 0)  # Red color for the text
                 pdf.set_font("Arial", "B", 10)  # Bold font
             else:
