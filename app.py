@@ -15,6 +15,7 @@ from google.oauth2.service_account import Credentials
 import json
 import os
 import termok
+import datetime
 
 # Ellenőrizzük, hogy a titok ténylegesen létezik-e
 if "GOOGLE_SHEET_CREDENTIALS" in st.secrets:
