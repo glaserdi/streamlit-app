@@ -395,11 +395,14 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
                           extrak])
 
     create_table(headers1, column_widths1, data1)
-
+    pdf.set_text_color(0, 0, 0)  # Reset to black for the text
+    pdf.set_font("Arial", "", 10)  # Normal font
     column_widths2 = [15, 55, 20, 20, 10, 20, 30, 20]
     headers2 = ["Sorsz.", "Üveg típusa", "Szélesség", "Magasság", "Db", "Kerület", "Extrák", "Vastagság"]
     data2 = []
     index = 0
+    pdf.set_text_color(0, 0, 0)  
+    pdf.set_font("Arial", "", 10)
     for _, row in grouped_df.iterrows():
         index += 1
         extrak = "".join([
