@@ -227,7 +227,8 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
         extrak = "".join([" MP" if row.get("Melegperem") in ["szürke", "fekete", "Szürke", "Fekete"] else "",
                           " TT" if row.get("Távtartó") == "Távtartó" else "",
                           " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-                          " AR" if row.get("Argon") == "Argon" else ""
+                          " AR" if row.get("Argon") == "Argon" else "",
+                          " !!" if row.get("Terület")/row.get("Darabszám") >= 2.5 else ""
                           ])
         if bevitel == "kezi":
             data1.append([str(index), str(row["Termékkód"]),
@@ -260,7 +261,8 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             " FMP" if row.get("Melegperem") in ["fekete", "Fekete"] else "",
             " TT" if row.get("Távtartó") == "Távtartó" else "",
             " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-            " AR" if row.get("Argon") == "Argon" else ""
+            " AR" if row.get("Argon") == "Argon" else "",
+            " !!" if row.get("Terület")/row.get("Darabszám") >= 2.5 else ""
         ])
 
         if bevitel == "kezi":
