@@ -23,12 +23,12 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "ÁRAJÁNLAT", ln=1, align="C")
     pdf.set_font("Arial", "", 12)
-    pdf.cell(0, 10, f"Dátum: {datetime.now().strftime('%Y-%m-%d')}", ln=0.5, align="C")
-    pdf.cell(0, 10, f"Ajánlatot kérte: {order_data['Megrendelo_neve'].iloc[0]}", ln=0.5, align="C")
+    pdf.cell(0, 10, f"Dátum: {datetime.now().strftime('%Y-%m-%d')}", ln=0.1, align="C")
+    pdf.cell(0, 10, f"Ajánlatot kérte: {order_data['Megrendelo_neve'].iloc[0]}", ln=0.1, align="C")
     if bevitel == "file":
-        pdf.cell(0, 10,f"Sorszám: {order_data['Sorszám_Megrendelés'].iloc[0]}", ln=0.5, align="C")
+        pdf.cell(0, 10,f"Sorszám: {order_data['Sorszám_Megrendelés'].iloc[0]}", ln=0.1, align="C")
     else:
-        pdf.cell(0, 10, f"Sorszám: {sorszam}", ln=0.5, align="C")
+        pdf.cell(0, 10, f"Sorszám: {sorszam}", ln=0.1, align="C")
     pdf.ln(5)  # Távolság a táblázat előtt
 
     # 🔹 Táblázat fejléc
@@ -121,12 +121,13 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
     pdf.set_font("Arial", "B", 10)
     pdf.cell(0, 10, "Megjegyzések:", ln=1)
 
-    pdf.set_font("Arial", "", 9)
-    pdf.cell(0, 10, "A kis terület adalék +20%, ha a terület kisebb mint 0.3 m².", ln=1)
-    pdf.cell(0, 10, "Extra méret adalék +20%, ha a terület nagyobb mint 2.5 m².", ln=1)
-    pdf.cell(0, 10, "MP = Meleg peremmel", ln=1)
-    pdf.cell(0, 10, "TT = Távtartóval", ln=1)
-    pdf.cell(0, 10, "EF = Eltéro forma", ln=1)
+    pdf.set_font("Arial", "", 7)
+    pdf.cell(0, 10, "A kis terület adalék +20%, ha a terület kisebb mint 0.3 m².", ln=0.1)
+    pdf.cell(0, 10, "Extra méret adalék +20%, ha a terület nagyobb mint 2.5 m².", ln=0.1)
+    pdf.set_xy(105, pdf.get_y() - 10) 
+    pdf.cell(0, 10, "MP = Meleg peremmel", ln=0.1)
+    pdf.cell(0, 10, "TT = Távtartóval", ln=0.1)
+    pdf.cell(0, 10, "EF = Eltéro forma", ln=0.1)
 
     pdf.ln(20)  # Távolság az aláírások előtt
 
