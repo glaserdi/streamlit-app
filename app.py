@@ -223,10 +223,7 @@ def main_content():
             
         st.header("📘 Határidők naplózása")
         if not deadlines.empty:
-            selected_day = date = st.date_input(
-    "Válassz egy dátumot", 
-    locale='hu'
-)
+            selected_day = date = st.date_input("Válassz egy dátumot")
             selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
             deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce").dt.strftime("%Y-%m-%d")  # Dátumok formázása
         
