@@ -127,10 +127,6 @@ def main_content():
             events = [{"title": row["title"], "start": row["start"].strftime("%Y-%m-%d")} for _, row in
                       df.iterrows()]
 
-            if st.button("🔄 Naptár frissítése"):
-                st.cache_data.clear()
-                st.cache_resource.clear()
-                st.rerun()
             
             # Naptár megjelenítése
             calendar_options = {"initialView": "dayGridMonth",  # Alapértelmezett nézet: havi nézet
@@ -155,6 +151,11 @@ def main_content():
         except Exception as e:
             st.error(f"Hiba történt az adatok beolvasása közben: {e}")
 
+        if st.button("🔄 Naptár frissítése"):
+                st.cache_data.clear()
+                st.cache_resource.clear()
+                st.rerun()
+            
         st.header("✏️ Határidő Módosítása")
         if not deadlines.empty:
             selected_deadline = st.selectbox("Válassz egy határidőt módosításra:", deadlines["title"])
