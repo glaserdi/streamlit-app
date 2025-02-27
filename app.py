@@ -113,6 +113,7 @@ def main_content():
         
     if page == "Főoldal":
         st.title("📆 Határidő Naptár")
+        
         deadlines = collect_calendar_data()
         filtered_deadlines = pd.DataFrame()
         
@@ -126,6 +127,11 @@ def main_content():
             events = [{"title": row["title"], "start": row["start"].strftime("%Y-%m-%d")} for _, row in
                       df.iterrows()]
 
+            if st.button("🔄 Naptár frissítése"):
+            st.cache_data.clear()
+            st.cache_resource.clear()
+            st.rerun()
+            
             # Naptár megjelenítése
             calendar_options = {"initialView": "dayGridMonth",  # Alapértelmezett nézet: havi nézet
                                 "firstDay": 1,  # Hétfői kezdés
@@ -238,11 +244,6 @@ def main_content():
                     st.info("Nincs rendelés ezen a napon.")
         else:
             st.info("Nincsenek határidők.")
-
-    if st.button("Naptár frissítése"):
-            st.cache_data.clear()
-            st.cache_resource.clear()
-            st.rerun()
 
     elif page == "Termó számítások":
         termok.show(st.session_state.role, st.session_state.username_str)
