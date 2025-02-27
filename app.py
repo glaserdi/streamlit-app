@@ -144,7 +144,7 @@ def main_content():
                                 "contentHeight": 700
                                }
             # Középre igazítás és szélesség korlátozása max. 1200px-re
-            st.write("<div style='max-width: 1000px; margin: auto;'>", unsafe_allow_html=True)
+            st.write("<div style='max-width: 800px; margin: auto;'>", unsafe_allow_html=True)
             calendar(events, options=calendar_options)
             st.write("</div>", unsafe_allow_html=True)
 
