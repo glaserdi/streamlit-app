@@ -223,13 +223,14 @@ def main_content():
             
         st.header("📘 Határidők naplózása")
         if not deadlines.empty:
-            selected_day = st.date_input("Válassz egy napot, amit szeretnél ellenőrizni", 
-                                        min_value=datetime.date(2020, 1, 1), 
-                                        max_value=datetime.date(2025, 12, 31),
-                                        value=datetime.date.today(), 
-                                        help="Válassz egy dátumot a hétfővel kezdődő naptárban",
-                                        locale='hu'
-                            )
+            selected_day = date = st.date_input(
+    "Válassz egy dátumot", 
+    min_value=datetime.date(2020, 1, 1),  # Itt szükséges a datetime modul
+    max_value=datetime.date(2025, 12, 31),
+    value=datetime.date.today(), 
+    help="Válassz egy dátumot a hétfővel kezdődő naptárban",
+    locale='hu'
+)
             selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
             deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce").dt.strftime("%Y-%m-%d")  # Dátumok formázása
         
