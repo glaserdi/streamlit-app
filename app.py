@@ -236,14 +236,13 @@ def main_content():
                     st.dataframe(filtered_display[["Megrendelés neve", "Darabszám", "Terület"]])
                 else:
                     st.info("Nincs rendelés ezen a napon.")
+        else:
+            st.info("Nincsenek határidők.")
 
-        if st.button("Naptár frissítése"):
+    if st.button("Naptár frissítése"):
             st.cache_data.clear()
             st.cache_resource.clear()
             st.rerun()
-
-        else:
-            st.info("Nincsenek határidők.")
 
     elif page == "Termó számítások":
         termok.show(st.session_state.role, st.session_state.username_str)
