@@ -140,6 +140,8 @@ def main_content():
                                     "center": "title",  # Középen a cím
                                     "right": "dayGridMonth,listMonth"  # Nézetválasztó: havi és lista nézet
                                 },
+                                "height": 800,  # Megnövelt méret
+                                "contentHeight": 700
                                }
             
             calendar(events, options=calendar_options)
