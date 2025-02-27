@@ -327,12 +327,12 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             start_x = pdf.get_x()
             start_y = pdf.get_y()
 
-            # Apply bold and red color if the conditions are met
+            # Check if the current row should be bold and red
             if float(row[5]) >= 2.5 and "6" not in row[1]:
-                pdf.set_text_color(255, 0, 0)  # Red color
+                pdf.set_text_color(255, 0, 0)  # Red color for the text
                 pdf.set_font("Arial", "B", 10)  # Bold font
             else:
-                pdf.set_text_color(0, 0, 0)  # Reset to black
+                pdf.set_text_color(0, 0, 0)  # Reset to black for the text
                 pdf.set_font("Arial", "", 10)  # Normal font
 
             pdf.multi_cell(column_widths[0], 6, row[0], border=1, align="C")
@@ -340,8 +340,13 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             row_height = max(6, end_y - start_y)
             pdf.set_xy(start_x + column_widths[0], start_y)
             for i in range(1, len(row)):
+                # Apply the same text style (bold + red) only to the content, not the border
                 pdf.cell(column_widths[i], row_height, row[i], border=1, align="C")
             pdf.ln(row_height)
+
+        # Reset to normal style for the "Összesen" row and the next rows
+        pdf.set_text_color(0, 0, 0)  # Reset text color to black
+        pdf.set_font("Arial", "", 10)  # Reset to normal font
 
         pdf.cell(sum(column_widths[:4]), 10, "Összesen:", 1,
                  align="C")
@@ -425,6 +430,3 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     buffer = io.BytesIO(pdf_output)
     buffer.seek(0)
     return buffer
-
-
-
