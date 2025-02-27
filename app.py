@@ -127,12 +127,21 @@ def main_content():
                       df.iterrows()]
 
             # Naptár megjelenítése
-            calendar_options = {"initialView": "dayGridMonth", "firstDay": 1, "locale": "hu", "views": {
-        "dayGridMonth": {},
-        "listMonth": {}
-    },  # Engedélyezzük a havi és lista nézetet
-    "height": 800,  # Magasság növelése
-    "contentHeight": 700, }
+            calendar_options = {"initialView": "dayGridMonth",  # Alapértelmezett nézet: havi nézet
+                                "firstDay": 1,  # Hétfői kezdés
+                                "locale": "hu",  # Magyar nyelv
+                                "views": {
+                                    "dayGridMonth": {},  # Havi nézet
+                                    "listMonth": {}  # Lista nézet
+                                },
+                                "headerToolbar": {
+                                    "left": "prev,next today",  # Előző, következő hónap és 'Ma' gomb
+                                    "center": "title",  # Középen a cím
+                                    "right": "dayGridMonth,listMonth"  # Nézetválasztó: havi és lista nézet
+                                },
+                                "height": 1200,  # Nagyobb naptár
+                                "contentHeight": 700  # Tartalom nagyítása
+                               }
             
             calendar(events, options=calendar_options)
 
