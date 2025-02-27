@@ -332,12 +332,21 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             start_y = pdf.get_y()
 
             # Check if the current row should be bold and red
-            if (float(row["Terület"]) / float(row["Darabszám"]) >= 2.5) and "6" not in row[1] and second is None:
-                pdf.set_text_color(255, 0, 0)  # Red color for the text
-                pdf.set_font("Arial", "B", 10)  # Bold font
-            else:
-                pdf.set_text_color(0, 0, 0)  # Reset to black for the text
-                pdf.set_font("Arial", "", 10)  # Normal font
+
+            try:
+                terulet = float(row["Terület"])
+                darabszam = float(row["Darabszám"])
+            except ValueError:
+                # Handle invalid float conversion, log or exit
+                return
+            
+            if len(row) > 1 and "6" not in row[1]:
+                if terulet / darabszam >= 2.5 and second is None:
+                    pdf.set_text_color(255, 0, 0)  # Red color for the text
+                    pdf.set_font("Arial", "B", 10)  # Bold font
+                else:
+                    pdf.set_text_color(0, 0, 0)  # Reset to black for the text
+                    pdf.set_font("Arial", "", 10)  # Normal font
 
             pdf.multi_cell(column_widths[0], 6, row[0], border=1, align="C")
             end_y = pdf.get_y()
