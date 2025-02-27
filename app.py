@@ -127,7 +127,7 @@ def main_content():
                       df.iterrows()]
 
             # Naptár megjelenítése
-            calendar_options = {"initialView": "dayGridMonth", "firstDay": 1}
+            calendar_options = {"initialView": "dayGridMonth", "firstDay": 1, "locale": "hu"}
             calendar(events, options=calendar_options)
 
         except Exception as e:
