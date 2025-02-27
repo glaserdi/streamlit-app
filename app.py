@@ -128,7 +128,7 @@ def main_content():
 
             # Naptár megjelenítése
             calendar_options = {"initialView": "dayGridMonth", "firstDay": 1}
-            calendar(events)
+            calendar(events, options=calendar_options)
 
         except Exception as e:
             st.error(f"Hiba történt az adatok beolvasása közben: {e}")
