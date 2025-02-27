@@ -224,11 +224,12 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     index = 0
     for _, row in grouped_df.iterrows():
         index += 1
+        if row.get("Darabszám") != 0 and row.get("Terület") / row.get("Darabszám") >= 2.5:
+            extrak += "!!"
         extrak = "".join([" MP" if row.get("Melegperem") in ["szürke", "fekete", "Szürke", "Fekete"] else "",
                           " TT" if row.get("Távtartó") == "Távtartó" else "",
                           " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-                          " AR" if row.get("Argon") == "Argon" else "",
-                          " !!" if row.get("Terület")/row.get("Darabszám") >= 2.5 else ""
+                          " AR" if row.get("Argon") == "Argon" else ""
                           ])
         if bevitel == "kezi":
             data1.append([str(index), str(row["Termékkód"]),
@@ -256,13 +257,14 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     for _, row in grouped_df.iterrows():
         print(row["Távtartó"])
         index += 1
+        if row.get("Darabszám") != 0 and row.get("Terület") / row.get("Darabszám") >= 2.5:
+            extrak += "!!"
         extrak = "".join([
             " SzMP" if row.get("Melegperem") in ["szürke", "Szürke"] else "",
             " FMP" if row.get("Melegperem") in ["fekete", "Fekete"] else "",
             " TT" if row.get("Távtartó") == "Távtartó" else "",
             " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-            " AR" if row.get("Argon") == "Argon" else "",
-            " !!" if row.get("Terület")/row.get("Darabszám") >= 2.5 else ""
+            " AR" if row.get("Argon") == "Argon" else ""
         ])
 
         if bevitel == "kezi":
