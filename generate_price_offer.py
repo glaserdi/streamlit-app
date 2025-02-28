@@ -71,7 +71,7 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
             str(round(row["Darabszám"])),
             f"{row['Terület']:.2f}",
             f"{row['Adalék']:.2f}",
-            f"{row['Össz terület']:.2f}",
+            f"{row['Összterület']:.2f}",
             f"{row['Ár']:.2f}"
         ]
 
@@ -97,7 +97,7 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
 
         ossz_sima_terulet += row["Terület"]
         ossz_darabszam += row["Darabszám"]
-        total_area += row["Össz terület"]
+        total_area += row["Összterület"]
         total_price += row["Ár"]
         ossz_adalek += row["Adalék"]
 
@@ -169,11 +169,11 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     
     # Ha fájl alapján dolgozunk
     if bevitel == "file":
-        expected_columns = ["Sorszám Megrendelés", "Megrendelo_neve", "Termékkód", "Szélesség", "Magasság", "Darabszám", "Terület", "Adalék", "Össz terület", "Ár"]
+        expected_columns = ["Sorszám Megrendelés", "Megrendelo_neve", "Termékkód", "Szélesség", "Magasság", "Darabszám", "Terület", "Adalék", "Összterület", "Ár"]
         rename_map = {
             "Sorszám Megrendelés": "Sorszám",
             "Termékkód": "Üveg típusa",
-            "Össz terület": "Összterület"
+            "Összterület": "Összterület"
         }
     
     # Ha kézi bevitel alapján dolgozunk
