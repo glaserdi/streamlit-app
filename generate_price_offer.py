@@ -199,7 +199,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
         pdf.set_font("Arial", "B", 11)
         if second:
             pdf.ln(15)
-        pdf.cell(0, 10, f"Megrendelõ: {order_data['Megrendelo_neve'].iloc[0]} \t\t\tSorszám: {sorszam} \t\t\tHatáridõ: {hatarido}", ln=1, align="C")
+        pdf.cell(0, 10, f"Megrendelõ: {order_data['Megrendelo_neve'].iloc[0]} \t\t\t\t\tSorszám: {sorszam} \t\t\t\t\tHatáridõ: {hatarido}", ln=1, align="C")
         pdf.ln(5)
 
         pdf.set_font("Arial", "B", 10.5)
