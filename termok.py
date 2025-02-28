@@ -511,9 +511,13 @@ def show(user_role: str, user_name:str):
                 # Google Sheets frissítése
                 modify_calendar_data(deadlines_modified)
                 
+                
                 # Visszajelzés a felhasználónak
                 st.success(f"✅ Új határidő hozzáadva: {megrendelo_neve} {sorszam}, Dátum: {hatarido}")
-
+                del st.session_state["order_data"]
+                del st.session_state["sorszam"]
+                del st.session_state["hatarido"]
+                del st.session_state["username"]
 
 
 
