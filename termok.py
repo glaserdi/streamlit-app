@@ -287,7 +287,7 @@ def show(user_role: str, user_name:str):
                     "Szélesség": szelesseg,
                     "Terület": terulet,
                     "Adalék": adalek,
-                    "Össz terület": ossz_terulet,
+                    "Összterület": ossz_terulet,
                     "Darabszám": darabszam,
                     "Ár": ar,
                     "Argon": argon,
@@ -311,7 +311,7 @@ def show(user_role: str, user_name:str):
         if not st.session_state.adathalmaz.empty:
             st.dataframe(st.session_state.adathalmaz[[
                 "Sorszám", "Termékkód", "Szélesség", "Magasság", "Darabszám", "Üveg vastagsága",
-                "Melegperem", "Távtartó", "Eltérő forma", "Terület", "Adalék", "Össz terület", "Ár"
+                "Melegperem", "Távtartó", "Eltérő forma", "Terület", "Adalék", "Összterület", "Ár"
             ]], use_container_width=True, hide_index=True)
 
             # Sor törlése
@@ -425,7 +425,7 @@ def show(user_role: str, user_name:str):
                                                      row["Eltérő forma"],
                                                      row["Távtartó"]
                                                      )[1], axis=1)
-                    order_data['Össz terület'] = order_data.apply(
+                    order_data['Összterület'] = order_data.apply(
                         lambda row: terulet_szamitas(row['Magasság'],
                                                      row['Szélesség'],
                                                      row['Darabszám'],
@@ -441,13 +441,13 @@ def show(user_role: str, user_name:str):
                         order_data["Egységár"] = order_data["Egységár"] + 35
 
                     order_data["Ár"] = order_data.apply(
-                        lambda row: row["Egységár"] * row['Össz terület'], axis=1
+                        lambda row: row["Egységár"] * row['Összterület'], axis=1
                     )
 
                     order_data["Ár"] = order_data["Ár"]
                     st.dataframe(order_data[
                                      ["Szélesség", "Magasság", "Darabszám", "Üveg vastagsága", "Melegperem", "Terület",
-                                      "Adalék", "Üveg típusa", "Össz terület", "Ár"]])
+                                      "Adalék", "Üveg típusa", "Összterület", "Ár"]])
 
                     st.write(f"💰 **Számított ár:** {np.ceil(order_data["Ár"].sum())} lej")
                 else:
