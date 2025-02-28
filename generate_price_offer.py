@@ -167,6 +167,32 @@ from fpdf import FPDF
 import io
 
 def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None):
+        # Oszlopnevek tisztítása (felesleges szóközök eltávolítása)
+    order_data.columns = order_data.columns.str.strip()
+    
+    # Ha fájl alapján dolgozunk
+    if bevitel == "file":
+        expected_columns = ["Sorszám Megrendelés", "Megrendelo_neve", "Termékkód", "Szélesség", "Magasság", "Darabszám", "Terület", "Adalék", "Össz terület", "Ár"]
+        rename_map = {
+            "Sorszám Megrendelés": "Sorszám",
+            "Termékkód": "Üveg típusa",
+            "Össz terület": "Összterület"
+        }
+    
+    # Ha kézi bevitel alapján dolgozunk
+    elif bevitel == "kezi":
+        expected_columns = ["Sorszám", "Megrendelo_neve", "Üveg típusa", "Szélesség", "Magasság", "Darabszám", "Terület", "Adalék", "Összterület", "Ár"]
+        rename_map = {}
+    
+    # Átnevezés, ha szükséges
+    order_data.rename(columns=rename_map, inplace=True)
+    
+    # Ellenőrizzük, hogy minden szükséges oszlop benne van-e a DataFrame-ben
+    missing_columns = [col for col in expected_columns if col not in order_data.columns]
+    if missing_columns:
+        print(f"Hiányzó oszlopok: {missing_columns}")
+
+    
     order_data["Kerület"] = 2 * (order_data["Szélesség"] + order_data["Magasság"]) * order_data["Darabszám"]
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=10)
