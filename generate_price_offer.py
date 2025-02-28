@@ -163,9 +163,6 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
     buffer.seek(0)
     return buffer
 
-from fpdf import FPDF
-import io
-
 def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None):
         # Oszlopnevek tisztítása (felesleges szóközök eltávolítása)
     order_data.columns = order_data.columns.str.strip()
@@ -200,7 +197,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
 
     def create_table(headers, column_widths, data, second=None):
         pdf.set_font("Arial", "B", 11)
-        pdf.ln(10)
+        pdf.ln(15)
         pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {sorszam} \tHatárideje: {hatarido}", ln=1, align="C")
         pdf.ln(5)
 
