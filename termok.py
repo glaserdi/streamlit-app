@@ -272,8 +272,11 @@ def show(user_role: str, user_name:str):
 
         if st.button("Hozzáad"):
             if megrendelo_neve and termek_kod and tipus and vastagsag and rendeles_sorszama:
-                uj_sorszam = 1 if st.session_state.adathalmaz.empty else int(st.session_state.adathalmaz[
-                                                                             "Sorszám"].max()) + 1
+                # Ha az adathalmaz üres
+                if st.session_state.adathalmaz.empty:
+                    uj_sorszam = 0  # Első hely
+                else:
+                    uj_sorszam = st.session_state.adathalmaz.index[-1] + 1  # Következő index
 
                 bevitt_adatok = {
                     "Sorszám": uj_sorszam,
