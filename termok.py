@@ -356,6 +356,11 @@ def show(user_role: str, user_name:str):
                     file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
                     mime="application/pdf"
                 )
+                st.markdown("""
+                                <script type="text/javascript">
+                                    window.print();
+                                </script>
+                            """, unsafe_allow_html=True)
 
             st.header("Rendelés leadása 🛒")
             task_name = f"{order_data_kezi["Megrendelo_neve"].iloc[0]} {round(rendeles_sorszama)}"
@@ -489,6 +494,11 @@ def show(user_role: str, user_name:str):
                 file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
                 mime="application/pdf"
             )
+                st.markdown("""
+                                <script type="text/javascript">
+                                    window.print();
+                                </script>
+                            """, unsafe_allow_html=True)
 
             st.header("Rendelés leadása 🛒")
             if st.button("✅ Árajánlat elfogadása"):
