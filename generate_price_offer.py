@@ -200,6 +200,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
 
     def create_table(headers, column_widths, data, second=None):
         pdf.set_font("Arial", "B", 11)
+        pdf.ln(2)
         pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {sorszam} \tHatárideje: {hatarido}", ln=1, align="C")
         pdf.ln(5)
 
