@@ -334,8 +334,9 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             # Check if the current row should be bold and red
 
             try:
-                terulet = float(row["Terület"])
-                darabszam = float(row["Darabszám"])
+                if row["Terület"] and row["Darabszám"]:
+                    terulet = float(row["Terület"])
+                    darabszam = float(row["Darabszám"])
             except ValueError:
                 # Handle invalid float conversion, log or exit
                 return
