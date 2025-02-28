@@ -505,7 +505,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     column_widths1 = [20, 55, 20, 20, 15, 25, 25]
     data1 = []
 
-    **# Oslopnevek tisztítása (szóköz -> "_", ékezetek eltávolítása)**
+    # Oszlopnevek tisztítása (szóköz -> "_", ékezetek eltávolítása)**
     order_data = order_data.rename(columns=lambda x: x.strip().replace(" ", "_"))
 
     for index, row_tuple in enumerate(order_data.sort_values(by="Üveg_típusa").itertuples(), start=1):
