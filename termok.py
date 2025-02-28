@@ -371,7 +371,7 @@ def show(user_role: str, user_name:str):
                         st.error(result)
                 # Új feladat hozzáadása
                 if task_name:
-                    new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido), "Terület": str(sum(order_data_kezi["Össz terület"])), "Darabszám": str(sum(order_data_kezi["Darabszám"]))}])
+                    new_entry = pd.DataFrame([{"title": task_name, "start": str(hatarido), "Terület": str(sum(order_data_kezi["Összterület"])), "Darabszám": str(sum(order_data_kezi["Darabszám"]))}])
                     
                     # A meglévő naptár adatokat lekérjük
                     deadlines = collect_calendar_data()  # Adatok beolvasása a Google Sheets-ből
@@ -504,7 +504,7 @@ def show(user_role: str, user_name:str):
                 
                 # Az új bejegyzés hozzáadása
                 # new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": f"{hatarido}"}])
-                new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": str(hatarido), "Terület": str(sum(order_data["Össz terület"])), "Darabszám": str(sum(order_data["Darabszám"]))}])
+                new_entry = pd.DataFrame([{"title": f"{megrendelo_neve} {sorszam}", "start": str(hatarido), "Terület": str(sum(order_data["Összterület"])), "Darabszám": str(sum(order_data["Darabszám"]))}])
                 # A új bejegyzés hozzáadása a meglévő deadlines DataFrame-hez
                 deadlines_modified = pd.concat([deadlines, new_entry], ignore_index=True)
                 
