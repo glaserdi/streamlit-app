@@ -447,6 +447,9 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
 #     buffer = io.BytesIO(pdf_output)
 #     buffer.seek(0)
 #     return buffer
+from fpdf import FPDF
+import io
+
 def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None):
     order_data["Kerület"] = 2 * (order_data["Szélesség"] + order_data["Magasság"]) * order_data["Darabszám"]
     pdf = FPDF(orientation="P", unit="mm", format="A4")
@@ -502,19 +505,24 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
     column_widths1 = [20, 55, 20, 20, 15, 25, 25]
     data1 = []
 
-    for index, row in enumerate(order_data.sort_values(by="Üveg típusa").itertuples(), start=1):
+    **# Oslopnevek tisztítása (szóköz -> "_", ékezetek eltávolítása)**
+    order_data = order_data.rename(columns=lambda x: x.strip().replace(" ", "_"))
+
+    for index, row_tuple in enumerate(order_data.sort_values(by="Üveg_típusa").itertuples(), start=1):
+        row = row_tuple._asdict()  # Dictként hivatkozunk a mezőkre
+
         extrak = "".join([
-            " MP" if row.Melegperem in ["szürke", "fekete", "Szürke", "Fekete"] else "",
-            " TT" if row.Távtartó == "Távtartó" else "",
-            " EF" if row.Eltérő_forma == "Eltérő forma" else "",
-            " AR" if row.Argon == "Argon" else ""
+            " MP" if row.get("Melegperem") in ["szürke", "fekete", "Szürke", "Fekete"] else "",
+            " TT" if row.get("Távtartó") == "Távtartó" else "",
+            " EF" if row.get("Eltérő_forma") == "Eltérő_forma" else "",  # Helyesen hivatkozunk
+            " AR" if row.get("Argon") == "Argon" else ""
         ])
         data1.append([
-            str(index), str(row.Üveg_típusa),
-            str(round(row.Szélesség)),
-            str(round(row.Magasság)),
-            str(round(row.Darabszám)),
-            str(round(row.Terület, 2)),
+            str(index), str(row["Üveg_típusa"]),
+            str(round(row["Szélesség"])),
+            str(round(row["Magasság"])),
+            str(round(row["Darabszám"])),
+            str(round(row["Terület"], 2)),
             extrak
         ])
 
