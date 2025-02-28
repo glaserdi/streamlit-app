@@ -213,8 +213,6 @@ def show(user_role: str, user_name:str):
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
     if bevitel == "Kézi bevitel":
-        if 'adathalmaz' not in st.session_state or st.session_state.adathalmaz is None:
-            st.session_state.adathalmaz = pd.DataFrame(columns=["Üveg típusa", "Szélesség", "Magasság", "Darabszám", "Terület", "Ár"])
         if user_role != "vasarlo":
             megrendelo_neve = st.selectbox("Megrendelő neve:", megrendelok_lista)
             if megrendelo_neve == "Magánszemély":
