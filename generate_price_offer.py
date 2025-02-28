@@ -474,7 +474,7 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             except ValueError:
                 terulet, darabszam = 0, 1  # Hibás értékek kezelése
 
-            **# PIROS SZÖVEG CSAK AZ ELSŐ TÁBLÁZATBAN**
+            # PIROS SZÖVEG CSAK AZ ELSŐ TÁBLÁZATBAN
             if second is None and "6" not in row[1]:
                 if darabszam > 0 and (terulet / darabszam) >= 2.5:
                     pdf.set_text_color(255, 0, 0)  # Piros szöveg
