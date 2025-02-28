@@ -447,31 +447,17 @@ def generate_pdf(order_data, company_logo_path, pecset_path , bevitel=None, sors
 #     buffer = io.BytesIO(pdf_output)
 #     buffer.seek(0)
 #     return buffer
-
 def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None):
     order_data["Kerület"] = 2 * (order_data["Szélesség"] + order_data["Magasság"]) * order_data["Darabszám"]
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=10)
     pdf.add_page()
 
-    def check_page_break(table_height):
-        if pdf.get_y() + table_height + 50 > 270:  # Ha a táblázat nem fér ki egészben
-            pdf.add_page()
-
     def create_table(headers, column_widths, data, second=None):
-        table_height = len(data) * 6 + 10  # Táblázat becsült magassága
-        if second:
-            check_page_break(table_height)
-            pdf.ln(20)
-
         pdf.set_font("Arial", "B", 11)
-        if bevitel == "file":
-            pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {order_data['Sorszám_Megrendelés'].iloc[0]} \tHatárideje: {str(order_data['Határidő'].iloc[0]).split(' ')[0]}", ln=0.1, align="C")
-        else:
-            pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {sorszam} \tHatárideje: {hatarido}", ln=0.1, align="C")
+        pdf.cell(0, 10, f"Megrendelte: {order_data['Megrendelo_neve'].iloc[0]} \tSorszám: {sorszam} \tHatárideje: {hatarido}", ln=1, align="C")
         pdf.ln(5)
 
-        pdf.set_x(10)
         pdf.set_font("Arial", "B", 10.5)
         for i, header in enumerate(headers):
             pdf.cell(column_widths[i], 10, header, 1, align="C")
@@ -482,24 +468,14 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
             start_x = pdf.get_x()
             start_y = pdf.get_y()
 
-            # Ellenőrizzük, hogy a sorban lévő értékek megfelelőek-e
             try:
-                if (
-                    isinstance(row[5], (int, float)) and
-                    isinstance(row[4], (int, float)) and
-                    row[4] > 0
-                ):
-                    terulet = float(row[5])
-                    darabszam = float(row[4])
-                else:
-                    terulet = 0
-                    darabszam = 1  # Nullával osztás elkerülése
-            except (ValueError, IndexError, KeyError):
-                terulet = 0
-                darabszam = 1  # Biztonsági érték
+                terulet = float(row[5]) if row[5] else 0
+                darabszam = float(row[4]) if row[4] else 1  # Nullával osztás elkerülése
+            except ValueError:
+                terulet, darabszam = 0, 1  # Hibás értékek kezelése
 
-            # Csak az első táblázatra alkalmazzuk a piros kiemelést
-            if second is None and len(row) > 1 and "6" not in row[1]:
+            **# PIROS SZÖVEG CSAK AZ ELSŐ TÁBLÁZATBAN**
+            if second is None and "6" not in row[1]:
                 if darabszam > 0 and (terulet / darabszam) >= 2.5:
                     pdf.set_text_color(255, 0, 0)  # Piros szöveg
                     pdf.set_font("Arial", "B", 10)  # Félkövér
@@ -515,68 +491,34 @@ def generate_gyartasi_pdf(order_data, bevitel=None, sorszam=None, hatarido=None)
                 pdf.cell(column_widths[i], row_height, row[i], border=1, align="C")
             pdf.ln(row_height)
 
-        # "Összesen" sor hozzáadása
         pdf.set_text_color(0, 0, 0)
         pdf.set_font("Arial", "", 10)
         pdf.cell(sum(column_widths[:4]), 10, "Összesen:", 1, align="C")
         pdf.cell(column_widths[4], 10, f"{round(sum(order_data['Darabszám']))}", 1, align="C")
-        if second:
-            pdf.cell(column_widths[5], 10, f"{round((sum(order_data['Kerület'])/1000), 2)} m", 1, align="C")
-            pdf.cell(column_widths[6], 10, "", 1, align="C")
-            pdf.cell(column_widths[7], 10, "", 1, align="C")
-        else:
-            pdf.cell(column_widths[5], 10, f"{round(sum(order_data['Terület']), 2)}  m²", 1, align="C")
-            pdf.cell(column_widths[6], 10, "", 1, align="C")
+        pdf.cell(column_widths[5], 10, f"{round(sum(order_data['Terület']), 2)} m²", 1, align="C")
+        pdf.cell(column_widths[6], 10, "", 1, align="C")
 
-    column_widths1 = [20, 55, 20, 20, 15, 25, 25]
     headers1 = ["Sorszám", "Üveg típusa", "Szélesség", "Magasság", "Db", "Terület", "Extrák"]
+    column_widths1 = [20, 55, 20, 20, 15, 25, 25]
     data1 = []
 
-    grouped_df = order_data.sort_values(by="Üveg típusa")
-    index = 0
-    for _, row in grouped_df.iterrows():
-        index += 1
+    for index, row in enumerate(order_data.sort_values(by="Üveg típusa").itertuples(), start=1):
         extrak = "".join([
-            " MP" if row.get("Melegperem") in ["szürke", "fekete", "Szürke", "Fekete"] else "",
-            " TT" if row.get("Távtartó") == "Távtartó" else "",
-            " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-            " AR" if row.get("Argon") == "Argon" else ""
+            " MP" if row.Melegperem in ["szürke", "fekete", "Szürke", "Fekete"] else "",
+            " TT" if row.Távtartó == "Távtartó" else "",
+            " EF" if row.Eltérő_forma == "Eltérő forma" else "",
+            " AR" if row.Argon == "Argon" else ""
         ])
         data1.append([
-            str(index), str(row["Üveg típusa"]),
-            str(round(row["Szélesség"])),
-            str(round(row["Magasság"])),
-            str(round(row["Darabszám"])),
-            str(round(row["Terület"], 2)),
+            str(index), str(row.Üveg_típusa),
+            str(round(row.Szélesség)),
+            str(round(row.Magasság)),
+            str(round(row.Darabszám)),
+            str(round(row.Terület, 2)),
             extrak
         ])
 
     create_table(headers1, column_widths1, data1)
-
-    column_widths2 = [15, 55, 20, 20, 10, 20, 30, 20]
-    headers2 = ["Sorsz.", "Üveg típusa", "Szélesség", "Magasság", "Db", "Kerület", "Extrák", "Vastagság"]
-    data2 = []
-    index = 0
-    for _, row in grouped_df.iterrows():
-        index += 1
-        extrak = "".join([
-            " SzMP" if row.get("Melegperem") in ["szürke", "Szürke"] else "",
-            " FMP" if row.get("Melegperem") in ["fekete", "Fekete"] else "",
-            " TT" if row.get("Távtartó") == "Távtartó" else "",
-            " EF" if row.get("Eltérő forma") == "Eltérő forma" else "",
-            " AR" if row.get("Argon") == "Argon" else ""
-        ])
-        data2.append([
-            str(index), str(row["Üveg típusa"]),
-            str(row["Szélesség"] / 10),
-            str(row["Magasság"] / 10),
-            str(round(row["Darabszám"])),
-            str(round(row["Kerület"] / 1000, 2)),
-            extrak,
-            str(int(row["Üveg vastagsága"]))
-        ])
-
-    create_table(headers2, column_widths2, data2, True)
 
     pdf_output = pdf.output(dest='S').encode('latin-1')
     buffer = io.BytesIO(pdf_output)
