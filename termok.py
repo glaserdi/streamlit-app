@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import read_excel
@@ -15,6 +16,8 @@ from app import modify_calendar_data, collect_calendar_data
 import json
 import openpyxl
 import io
+from io import BytesIO 
+
 deadlines = collect_calendar_data()
 
 # Próbáljuk meg beolvasni a secrets fájlt
