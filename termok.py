@@ -14,7 +14,7 @@ import toml
 from app import modify_calendar_data, collect_calendar_data
 import json
 import openpyxl
-
+import io
 deadlines = collect_calendar_data()
 
 # Próbáljuk meg beolvasni a secrets fájlt
