@@ -183,7 +183,7 @@ def optimize_cutting(lec_lista, max_length=6000):
 
 def modify_excel_with_name(username):
     # 📌 Excel fájl betöltése
-    wb = openpyxl.load_workbook(sablon.xls)  
+    wb = openpyxl.load_workbook('sablon.xlsx')  
     ws = wb.active  # Az első munkalapot használjuk
     
     # 📌 A1 cellába írjuk a felhasználó nevét
