@@ -427,13 +427,16 @@ def show(user_role: str, user_name:str):
         # Excel fájl létrehozása és letöltés biztosítása
         excel_file = update_excel_with_name(user_name)
         
-        # Letöltési link generálása
-        st.download_button(
-            label="Letöltés",
-            data=excel_file,
-            file_name=f"rendelési_lap_{user_name}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+       
+        # 🔹 Letöltő gomb
+        if st.button("🔽 Rendelési Lap Letöltése"):
+            modified_excel = modify_excel_with_name(username)
+            st.download_button(
+                label="📥 Letöltés",
+                data=modified_excel,
+                file_name="rendelési_lap.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         if uploaded_file:
             try:
                 # Beolvassuk a fájlt és frissítjük a session-ban tárolt adatokat
