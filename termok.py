@@ -17,6 +17,7 @@ import json
 import openpyxl
 import io
 from io import BytesIO 
+from openpyxl.worksheet.datavalidation import DataValidation
 
 deadlines = collect_calendar_data()
 
@@ -186,12 +187,17 @@ def optimize_cutting(lec_lista, max_length=6000):
 
 def modify_excel_with_name(username):
     # 📌 Excel fájl betöltése
-    wb = openpyxl.load_workbook('sablon.xlsx')  
+    wb = openpyxl.load_workbook('sablon.xlsx', keep_vba=False)  
     ws = wb.active  # Az első munkalapot használjuk
     
     # 📌 A1 cellába írjuk a felhasználó nevét
     ws["A1"] = username  
-    
+
+     # 🔹 Adatérvényesítés ellenőrzése
+    validations = []
+    for dv in ws.data_validations.dataValidation:
+        validations.append(dv)
+        
     # 📌 A fájl mentése memória-ba (nem írjuk felül az eredetit)
     excel_data = BytesIO()
     wb.save(excel_data)
