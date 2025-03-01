@@ -14,7 +14,7 @@ from email import encoders
 import toml
 from app import modify_calendar_data, collect_calendar_data
 import json
-import openpyxl
+from openpyxl import load_workbook
 import io
 from io import BytesIO 
 import shutil
