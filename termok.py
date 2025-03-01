@@ -417,9 +417,8 @@ def show(user_role: str, user_name:str):
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
         # Streamlit felület
         st.header("Nem találod?🔍 Töltsd le újra: ")
-        st.title('Rendelési Lap letöltése')
         
-        user_name = order_data['Megrendelő_neve'].iloc[0]
+        user_name = session_state.username_str
         
         # Ha van név, akkor a fájl generálása
         st.write(f"Rendelési lap generálása {user_name} részére...")
