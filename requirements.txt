@@ -8,3 +8,4 @@ toml
 gspread_dataframe
 oauth2client
 gspread
+pycryptodome
