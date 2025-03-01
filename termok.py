@@ -185,27 +185,6 @@ def optimize_cutting(lec_lista, max_length=6000):
 
     return bins, hulladekok
 
-def modify_excel_with_name(username):
-    # 📌 Másoljuk a fájlt a memóriába, hogy ne módosítsuk az eredetit
-    temp_file = BytesIO()
-    with open("sablon.xlsx", "rb") as f:
-        temp_file.write(f.read())  
-    temp_file.seek(0)  # Visszaállítjuk a fájlmutatót az elejére
-
-    # 📌 Excel fájl betöltése memória-alapú objektumból
-    wb = load_workbook(temp_file, data_only=False)  # 🔹 data_only=False => Megőrizzük a képleteket és dropdownokat
-
-    ws = wb.active  
-
-    # 📌 A1 cellába írjuk a nevet
-    ws["A1"] = username  
-
-    # 📌 Új fájl létrehozása memória-alapú objektumban
-    output = BytesIO()
-    wb.save(output)
-    output.seek(0)  # Visszaállítjuk az elejére
-
-    return output
 def show(user_role: str, user_name:str):
     # 🔹 EXCEL ADATOK BETÖLTÉSE (Cache-elés)
     @st.cache_data
@@ -422,18 +401,6 @@ def show(user_role: str, user_name:str):
 
     elif bevitel == "Fájl feltöltése":
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
-        # Streamlit felület
-        st.header("Nem találod?🔍 Töltsd le újra: ")
-        
-        # 🔹 Letöltő gomb
-        if st.button("🔽 Rendelési Lap Letöltése"):
-            modified_excel = modify_excel_with_name(st.session_state.username_str)
-            st.download_button(
-                label="📥 Letöltés",
-                data=modified_excel,
-                file_name="rendelési_lap.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
         if uploaded_file:
             try:
                 # Beolvassuk a fájlt és frissítjük a session-ban tárolt adatokat
