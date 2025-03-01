@@ -16,7 +16,23 @@ import json
 import os
 import termok
 import datetime
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+import base64
 
+# AES visszafejtési funkció
+def decrypt_password(encrypted_password: str, secret_key: bytes, iv: str):
+    # Az IV és a titkosított jelszó dekódolása
+    iv = base64.b64decode(iv)
+    encrypted_password = base64.b64decode(encrypted_password)
+    
+    # AES cipher objektum létrehozása a titkosítási kulccsal és az IV-vel
+    cipher = AES.new(secret_key, AES.MODE_CBC, iv)
+    
+    # Jelszó visszafejtése
+    decrypted_password = unpad(cipher.decrypt(encrypted_password), AES.block_size)
+    return decrypted_password.decode('utf-8')
+        
 # Ellenőrizzük, hogy a titok ténylegesen létezik-e
 if "GOOGLE_SHEET_CREDENTIALS" in st.secrets:
     google_credentials = st.secrets["GOOGLE_SHEET_CREDENTIALS"]
@@ -44,7 +60,6 @@ def collect_calendar_data():
     df = pd.DataFrame(worksheet.get_all_records())
     return df
 
-
 def modify_calendar_data(df):
     worksheet = sheet.worksheet("Határidők")
 
@@ -60,9 +75,11 @@ def modify_calendar_data(df):
 try:
     secrets = toml.load(".streamlit/secrets.toml")  # Vagy "config.toml"
     users = secrets.get("users", {})
+    secret_key = base64.b64decode(secrets["SECRET_KEY"])  # Titkosítási kulcs Base64-ből dekódolva
 except Exception as e:
     st.error(f"Hiba a secrets.toml betöltésekor: {e}")
     users = {}
+    secret_key = None
 
 
 # 📌 Session state inicializálás
@@ -73,26 +90,43 @@ if "authenticated" not in st.session_state:
     st.session_state.username_str = None
 
 
-
-
-
-# 🔐 Bejelentkezési oldal
 def login_page():
     st.markdown("## 🔐 Bejelentkezés")
     # Beviteli mezők
     username = st.text_input("Felhasználónév")
     password = st.text_input("Jelszó", type="password")
+# Jelszó ellenőrzése belépéskor
+
+# 🔐 Jelszó ellenőrzés
+def check_user_password(username: str, password: str):
+    """A beírt jelszó összehasonlítása a titkosított változattal."""
+    if username in users:
+        encrypted_password = users[username]["password"]
+        decrypted_password = decrypt_password(encrypted_password, secret_key)
+
+        if decrypted_password and decrypted_password == password:
+            return True
+    return False
+
+# 🔑 Bejelentkezési oldal
+def login_page():
+    st.markdown("## 🔐 Bejelentkezés")
+
+    username = st.text_input("Felhasználónév")
+    password = st.text_input("Jelszó", type="password")
 
     if st.button("Bejelentkezés"):
-        if username in users and users[username]["password"] == password:
+        if check_user_password(username, password):
+            # Bejelentkezési adatok mentése
             st.session_state.authenticated = True
             st.session_state.role = users[username]["role"]
             st.session_state.username = username
             st.session_state.username_str = users[username]["nev"]
+            
             st.success(f"✅ Sikeres bejelentkezés: {st.session_state.username_str}")
             st.rerun()
         else:
-            st.error("❌ Hibás felhasználónév vagy jelszó")
+            st.error("❌ Hibás felhasználónév vagy jelszó!")
 
 # 🏠 **Fő tartalom**
 def main_content():
@@ -258,6 +292,9 @@ def main_content():
 
     elif page == "Bejövő rendelések":
         rendelesek.show()
+
+    # elif page == "Új ügyfél regisztrálása":
+    #     regisztracio.show()
 
 # 🔥 **Fő programlogika**
 if not st.session_state.authenticated:
