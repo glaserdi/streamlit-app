@@ -181,25 +181,21 @@ def optimize_cutting(lec_lista, max_length=6000):
 
     return bins, hulladekok
 
-def update_excel_with_name(name):
-    # Töltsd be a sablon fájlt (helyi fájl vagy URL)
-    # Itt feltételezzük, hogy van egy 'sablon.xlsx' nevű fájl
-    template_file = 'sablon.xlsx'
+def modify_excel_with_name(username):
+    # 📌 Excel fájl betöltése
+    wb = openpyxl.load_workbook(sablon.xls)  
+    ws = wb.active  # Az első munkalapot használjuk
     
-    # Excel fájl megnyitása
-    wb = openpyxl.load_workbook(template_file)
-    sheet = wb.active
+    # 📌 A1 cellába írjuk a felhasználó nevét
+    ws["A1"] = username  
     
-    # Az A1 cellába beírjuk a felhasználó nevét
-    sheet['A1'] = name
+    # 📌 A fájl mentése memória-ba (nem írjuk felül az eredetit)
+    excel_data = BytesIO()
+    wb.save(excel_data)
+    excel_data.seek(0)
     
-    # A módosított fájlt ByteIO objektumba mentsük
-    output = io.BytesIO()
-    wb.save(output)
-    output.seek(0)
+    return excel_data
     
-    return output
-
 def show(user_role: str, user_name:str):
     # 🔹 EXCEL ADATOK BETÖLTÉSE (Cache-elés)
     @st.cache_data
@@ -419,18 +415,9 @@ def show(user_role: str, user_name:str):
         # Streamlit felület
         st.header("Nem találod?🔍 Töltsd le újra: ")
         
-        user_name = st.session_state.username_str
-        
-        # Ha van név, akkor a fájl generálása
-        st.write(f"Rendelési lap generálása {user_name} részére...")
-        
-        # Excel fájl létrehozása és letöltés biztosítása
-        excel_file = update_excel_with_name(user_name)
-        
-       
         # 🔹 Letöltő gomb
         if st.button("🔽 Rendelési Lap Letöltése"):
-            modified_excel = modify_excel_with_name(username)
+            modified_excel = modify_excel_with_name(st.session_state.username_str)
             st.download_button(
                 label="📥 Letöltés",
                 data=modified_excel,
