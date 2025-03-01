@@ -21,16 +21,20 @@ from Crypto.Util.Padding import unpad
 import base64
 
 # AES visszafejtési funkció
-def decrypt_password(encrypted_password: str, secret_key: bytes, iv: str):
-    # Az IV és a titkosított jelszó dekódolása
-    iv = base64.b64decode(iv)
-    encrypted_password = base64.b64decode(encrypted_password)
+def decrypt_password(encrypted_password: str, secret_key: bytes):
+    # Az IV és a titkosított jelszó szétválasztása
+    iv_b64, encrypted_password_b64 = encrypted_password.split(":")
+    
+    # Az IV és a titkosított jelszó Base64 dekódolása
+    iv = base64.b64decode(iv_b64)
+    encrypted_password = base64.b64decode(encrypted_password_b64)
     
     # AES cipher objektum létrehozása a titkosítási kulccsal és az IV-vel
     cipher = AES.new(secret_key, AES.MODE_CBC, iv)
     
     # Jelszó visszafejtése
     decrypted_password = unpad(cipher.decrypt(encrypted_password), AES.block_size)
+    
     return decrypted_password.decode('utf-8')
         
 # Ellenőrizzük, hogy a titok ténylegesen létezik-e
