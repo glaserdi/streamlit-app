@@ -186,20 +186,21 @@ def optimize_cutting(lec_lista, max_length=6000):
     return bins, hulladekok
 
 def modify_excel_with_name(username):
-    # 📌 Fájl átmásolása memória-ba, hogy ne sérüljön
+    # 📌 Fájl átmásolása memória-ba
     temp_file = BytesIO()
-    with open('sablon.xlsx', "rb") as f:
-        shutil.copyfileobj(f, temp_file)
-    temp_file.seek(0)
+    with open("sablon.xlsx", "rb") as f:
+        temp_file.write(f.read())  
+    temp_file.seek(0)  # Visszaállítjuk az elejére
 
-    # 📌 Excel betöltése a másolt fájlból
-    wb = load_workbook(temp_file, keep_vba=True)  # 🔹 Megőrizzük a makrókat és formázásokat
+    # 📌 Excel fájl betöltése
+    wb = load_workbook(temp_file, data_only=False)  # 🔹 data_only=False => Megőrizzük a képleteket és adatokat
+
     ws = wb.active  
 
-    # 📌 A1 cellába beírjuk a nevet
+    # 📌 A1 cellába írjuk a nevet
     ws["A1"] = username  
 
-    # 📌 Mentés memória-ba
+    # 📌 Fájl mentése memória-ba
     output = BytesIO()
     wb.save(output)
     output.seek(0)
