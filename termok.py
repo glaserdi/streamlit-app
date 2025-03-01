@@ -418,7 +418,7 @@ def show(user_role: str, user_name:str):
         # Streamlit felület
         st.header("Nem találod?🔍 Töltsd le újra: ")
         
-        user_name = session_state.username_str
+        user_name = st.session_state.username_str
         
         # Ha van név, akkor a fájl generálása
         st.write(f"Rendelési lap generálása {user_name} részére...")
