@@ -180,6 +180,24 @@ def optimize_cutting(lec_lista, max_length=6000):
 
     return bins, hulladekok
 
+def update_excel_with_name(name):
+    # Töltsd be a sablon fájlt (helyi fájl vagy URL)
+    # Itt feltételezzük, hogy van egy 'sablon.xlsx' nevű fájl
+    template_file = 'sablon.xlsx'
+    
+    # Excel fájl megnyitása
+    wb = openpyxl.load_workbook(template_file)
+    sheet = wb.active
+    
+    # Az A1 cellába beírjuk a felhasználó nevét
+    sheet['A1'] = name
+    
+    # A módosított fájlt ByteIO objektumba mentsük
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    return output
 
 def show(user_role: str, user_name:str):
     # 🔹 EXCEL ADATOK BETÖLTÉSE (Cache-elés)
@@ -473,9 +491,26 @@ def show(user_role: str, user_name:str):
             # PDF generálás frissített adat alapján
             pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file")
             gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, "file", sorszam, hatarido)  # Az új adatokat kell átadni itt is!
-
-            # pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file" )
-            # gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, bevitel="file", sorszam=None)
+            
+            # Streamlit felület
+            s.header("Nem találod?🔍 Töltsd le újra: ")
+            st.title('Rendelési Lap letöltése')
+            
+            user_name = order_data['Megrendelő_neve'].iloc[0]
+            
+            # Ha van név, akkor a fájl generálása
+            st.write(f"Rendelési lap generálása {user_name} részére...")
+            
+            # Excel fájl létrehozása és letöltés biztosítása
+            excel_file = update_excel_with_name(user_name)
+            
+            # Letöltési link generálása
+            st.download_button(
+                label="Letöltés",
+                data=excel_file,
+                file_name=f"rendelési_lap_{user_name}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
             st.header("Árajánlat generálása 🧮")
 
