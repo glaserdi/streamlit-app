@@ -17,7 +17,7 @@ import json
 import openpyxl
 import io
 from io import BytesIO 
-from openpyxl.worksheet.datavalidation import DataValidation
+import shutil
 
 deadlines = collect_calendar_data()
 
@@ -186,24 +186,25 @@ def optimize_cutting(lec_lista, max_length=6000):
     return bins, hulladekok
 
 def modify_excel_with_name(username):
-    # 📌 Excel fájl betöltése
-    wb = openpyxl.load_workbook('sablon.xlsx', keep_vba=False)  
-    ws = wb.active  # Az első munkalapot használjuk
-    
-    # 📌 A1 cellába írjuk a felhasználó nevét
+    # 📌 Fájl átmásolása memória-ba, hogy ne sérüljön
+    temp_file = BytesIO()
+    with open('sablon.xlsx', "rb") as f:
+        shutil.copyfileobj(f, temp_file)
+    temp_file.seek(0)
+
+    # 📌 Excel betöltése a másolt fájlból
+    wb = load_workbook(temp_file, keep_vba=True)  # 🔹 Megőrizzük a makrókat és formázásokat
+    ws = wb.active  
+
+    # 📌 A1 cellába beírjuk a nevet
     ws["A1"] = username  
 
-     # 🔹 Adatérvényesítés ellenőrzése
-    validations = []
-    for dv in ws.data_validations.dataValidation:
-        validations.append(dv)
-        
-    # 📌 A fájl mentése memória-ba (nem írjuk felül az eredetit)
-    excel_data = BytesIO()
-    wb.save(excel_data)
-    excel_data.seek(0)
-    
-    return excel_data
+    # 📌 Mentés memória-ba
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return output
     
 def show(user_role: str, user_name:str):
     # 🔹 EXCEL ADATOK BETÖLTÉSE (Cache-elés)
