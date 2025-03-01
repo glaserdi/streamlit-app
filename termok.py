@@ -415,7 +415,25 @@ def show(user_role: str, user_name:str):
 
     elif bevitel == "Fájl feltöltése":
         uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
-
+        # Streamlit felület
+            st.header("Nem találod?🔍 Töltsd le újra: ")
+            st.title('Rendelési Lap letöltése')
+            
+            user_name = order_data['Megrendelő_neve'].iloc[0]
+            
+            # Ha van név, akkor a fájl generálása
+            st.write(f"Rendelési lap generálása {user_name} részére...")
+            
+            # Excel fájl létrehozása és letöltés biztosítása
+            excel_file = update_excel_with_name(user_name)
+            
+            # Letöltési link generálása
+            st.download_button(
+                label="Letöltés",
+                data=excel_file,
+                file_name=f"rendelési_lap_{user_name}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         if uploaded_file:
             try:
                 # Beolvassuk a fájlt és frissítjük a session-ban tárolt adatokat
@@ -492,26 +510,6 @@ def show(user_role: str, user_name:str):
             pdf_buffer = gen_p.generate_pdf(order_data, "./logo_1.jpg", "pecset.jpg", "file")
             gyartas_pdf_buffer = gen_p.generate_gyartasi_pdf(order_data, "file", sorszam, hatarido)  # Az új adatokat kell átadni itt is!
             
-            # Streamlit felület
-            s.header("Nem találod?🔍 Töltsd le újra: ")
-            st.title('Rendelési Lap letöltése')
-            
-            user_name = order_data['Megrendelő_neve'].iloc[0]
-            
-            # Ha van név, akkor a fájl generálása
-            st.write(f"Rendelési lap generálása {user_name} részére...")
-            
-            # Excel fájl létrehozása és letöltés biztosítása
-            excel_file = update_excel_with_name(user_name)
-            
-            # Letöltési link generálása
-            st.download_button(
-                label="Letöltés",
-                data=excel_file,
-                file_name=f"rendelési_lap_{user_name}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-
             st.header("Árajánlat generálása 🧮")
 
             st.download_button(
