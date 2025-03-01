@@ -13,6 +13,7 @@ from email import encoders
 import toml
 from app import modify_calendar_data, collect_calendar_data
 import json
+import openpyxl
 
 deadlines = collect_calendar_data()
 
