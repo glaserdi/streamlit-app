@@ -28,9 +28,11 @@ def get_ar(df, termek_kod, arlista_szint):
     return float(filtered_rows.iloc[0]) if not filtered_rows.empty else None
 
 
-def show(user_role, user_name):
+def show():
     st.title("🪞 Vágott üveg rendelések")
-
+    user_name = st.session_state.user_name
+    user_role = st.session_state.user_role
+    
     bevitel = st.radio("Hogyan szeretnéd bevinni az adatokat?", ["Kézi bevitel", "Fájl feltöltése"])
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
