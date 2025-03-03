@@ -286,7 +286,7 @@ def main_content():
         termok.show(st.session_state.role, st.session_state.username_str)
 
     elif page == "Vágott üveg számítások":
-        vagott_uvegek.show()
+        vagott_uvegek.show(st.session_state.user_role, st.session_state.username_str)
 
     elif page == "Tusolófülke számítások":
         tusolofulkek.show()
