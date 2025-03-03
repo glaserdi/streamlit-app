@@ -144,7 +144,7 @@ def main_content():
         pages = ["Főoldal", "Termó számítások", "Vágott üveg számítások",
                  "Tusolófülke számítások", "Képkeret számítások", "Bejövő rendelések"]
     elif st.session_state.role == "vasarlo":
-        pages = ["Termó számítások"]
+        pages = ["Termó számítások", "Vágott üveg számítások"]
     else:
         pages = []
 
