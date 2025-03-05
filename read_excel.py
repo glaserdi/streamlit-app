@@ -34,3 +34,29 @@ def extract_order_data(file_path):
     )
 
     return result_data
+
+def extract_order_data_vagott_uveg(file_path):
+
+    a1_value = pd.read_excel(file_path, sheet_name='Munka1', header=None, usecols="A", nrows=1).iloc[0, 0]
+    g2_value = pd.read_excel(file_path, sheet_name='Munka1', header=None, usecols="G", nrows=2).iloc[1, 0]
+    g3_value = pd.read_excel(file_path, sheet_name='Munka1', header=None, usecols="G", nrows=3).iloc[2, 0]
+    e5_value = pd.read_excel(file_path, sheet_name='Munka1', header=None, usecols="E", skiprows=4, nrows=1).iloc[0, 0]
+    # Az adatok beolvasása a 9. sortól kezdve
+    data_df = pd.read_excel(file_path, sheet_name='Munka1', header=None, skiprows=8, usecols="B,C,D,F,G")
+
+    # Az oszlopok elnevezése
+    data_df.columns = ['Szélesség', 'Magasság', 'Darabszám',
+                       'Üveg típusa', "Csiszolás"]
+
+    # Csak a releváns sorok megtartása (ahol van üveg típusa és darabszám)
+    filtered_data = data_df.dropna(subset=['Üveg típusa', 'Darabszám'], how='any').copy()
+
+    # Új DataFrame létrehozása a plusz adatokkal
+    result_data = filtered_data.assign(
+        Megrendelő_neve=a1_value,
+        Dátum=g2_value,
+        Határidő=g3_value,
+        Sorszám_Megrendelés=e5_value,
+    )
+
+    return result_data
