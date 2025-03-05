@@ -296,8 +296,6 @@ def show(user_role, user_name):
             except Exception as e:
                 st.error(f"Hiba történt a fájl feldolgozása közben: {e}")
 
-show("vasarlo", "Reka")
-
 
 
 
