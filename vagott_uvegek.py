@@ -3,12 +3,14 @@ import pandas as pd
 import constants as C
 import datetime
 import numpy as np
+import math
+import read_excel
 
 lyukak_ara = []
 csiszolas_ara = 0
 ar = 0
 def load_excel_data(file_path):
-    df_vagott_uveg_kod = pd.read_excel(file_path, sheet_name='EgyediTermekKod')
+    df_vagott_uveg_kod = pd.read_excel(file_path, sheet_name='Vagott uvegek')
     df_cegek_arlista = pd.read_excel(file_path, sheet_name='Arlista')
     return df_vagott_uveg_kod, df_cegek_arlista
 
@@ -28,9 +30,26 @@ def get_ar(df, termek_kod, arlista_szint):
     return float(filtered_rows.iloc[0]) if not filtered_rows.empty else None
 
 
-def show(user_role: str, user_name:str):
+def calculate_price(row, arlista_szint):
+    terulet = row['Magasság'] * row['Szélesség']
+    vastagsag = row["Üveg típusa"].split()[-1][:-2]
+    eladasi_ar = get_ar(df_vagott_uveg_kod, row['Üveg típusa'], arlista_szint)
+    ar = np.ceil(row["Terület"] * eladasi_ar)
+
+    szelesseg_count = row["Csiszolás"].count("Szélesség")
+    magassag_count = row["Csiszolás"].count("Magasság")
+    csiszolas_ara = C.csiszolas_arak[str(vastagsag)]
+
+    ar += math.ceil(
+        ((szelesseg_count * row["Szélesség"]) + (magassag_count * row["Magasság"])) / 1000 * csiszolas_ara
+    )*row["Darabszám"]
+
+    return ar
+
+def show(user_role, user_name):
+
     st.title("🪞 Vágott üveg rendelések")
-    
+
     bevitel = st.radio("Hogyan szeretnéd bevinni az adatokat?", ["Kézi bevitel", "Fájl feltöltése"])
     megrendelok_lista = df_cegek_arlista["Ceg neve"]
 
@@ -41,20 +60,57 @@ def show(user_role: str, user_name:str):
 
         rendeles_sorszama = st.number_input("Rendelés sorszáma", step=1)
         hatarido = st.date_input("Kérlek add meg az elkészítés határidejét:", datetime.date.today())
-        tipus = st.selectbox("Válaszd ki az üveg kódját", df_vagott_uveg_kod["Termék Kod"])
+        vastagsag = st.selectbox("Üveg vastagsága", [2, 3, 4, 6, 8])
+        szurt_termekek = df_vagott_uveg_kod[df_vagott_uveg_kod["Termék Kod"].str.contains(f"{vastagsag}mm", na=False)]
+        tipus = st.selectbox("Válaszd ki az üveg kódját", szurt_termekek)
 
         st.write("**Opciók**")
-        csiszolas = st.checkbox("Csiszolás")
+
+        csiszolas = st.checkbox("Csiszolás géppel")
+        if csiszolas:
+            csiszolas = "csiszolás"
+
+        csiszolas_kezi = st.checkbox("Csiszolás kézzel")
+        if csiszolas_kezi:
+            csiszolas = "csiszolás kézi"
+
+        if csiszolas == "csiszolás" or csiszolas == "csiszolás kézi":
+            oldalak_szama = st.selectbox("Hány oldalát kell csiszolni?", [1, 2, 3, 4])
+            if oldalak_szama == 1:
+                csiszolando_oldal = st.selectbox("Melyik oldalt kell csiszolni?", ["Szélesség", "Magasság"])
+            elif oldalak_szama == 2:
+                csiszolando_oldal = st.selectbox("Melyik oldalakat kell csiszolni?",
+                                                 ["Szélesség + Szélesség", "Szélesség + Magasság", "Magasság + Magasság"])
+            elif oldalak_szama == 3:
+                csiszolando_oldal = st.selectbox("Melyik oldalakat kell csiszolni?",
+                                                 ["Szélesség + Magasság + Magasság", "Magasság + Szélesség + Szélesség"])
+            elif oldalak_szama == 4:
+                csiszolando_oldal = "Szélesség + Magasság + Magasság + Szélesség"
+
         lyuk = st.checkbox("Lyukfúrás")
 
         lyuk_meretek = []
         if lyuk:
-            lyuk_szam = st.number_input("Hány lyuk átmérőjét szeretnéd kiválasztani?", min_value=1, step=1, value=1)
-            for i in range(lyuk_szam):
-                meret = st.selectbox(f"Válaszd ki a {i + 1}. lyuk átmérőjét:", ["5-6", "7-25", "26-55"],
-                                     key=f"lyuk_{i}")
-                lyuk_meretek.append(meret)
-                lyukak_ara.append(lyuk_egyseg_ar(meret))
+            lyuk_5_6 = st.number_input("Hány db 5-6mm átmérőjű lyukat szeretnél?", min_value=0, step=1, value=0)
+            lyuk_8_26 = st.number_input("Hány db 8-26mm átmérőjű lyukat szeretnél?", min_value=0, step=1, value=0)
+            lyuk_30_55 = st.number_input("Hány db 30-55mm átmérőjű lyukat szeretnél?", min_value=0, step=1, value=0)
+
+            # Listák a méretek és árak tárolására
+            lyuk_meretek = []
+            lyukak_ara = []
+
+            # Ha a felhasználó beírt darabszámokat, számoljuk ki az árat
+            if lyuk_5_6 > 0:
+                lyuk_meretek.extend(["5-6"] * lyuk_5_6)
+                lyukak_ara.append(lyuk_5_6 * lyuk_egyseg_ar("5-6"))
+
+            if lyuk_8_26 > 0:
+                lyuk_meretek.extend(["8-26"] * lyuk_8_26)
+                lyukak_ara.append(lyuk_8_26 * lyuk_egyseg_ar("8-26"))
+
+            if lyuk_30_55 > 0:
+                lyuk_meretek.extend(["30-55"] * lyuk_30_55)
+                lyukak_ara.append(lyuk_30_55 * lyuk_egyseg_ar("30-55"))
 
         szelesseg = st.number_input("Szélesség (mm)", min_value=1, max_value=C.MAX_MERET,
                                     placeholder="Írj be egy számot...")
@@ -72,10 +128,39 @@ def show(user_role: str, user_name:str):
         ar = np.ceil(terulet * eladasi_ar)
         if lyuk:
             ar += sum(lyukak_ara)
-        if csiszolas:
-            csiszolas_ara = 25
-            ar += np.ceil(kerulet * csiszolas_ara)
+        if csiszolas == "csiszolás kézi":
+            csiszolas_ara = C.csiszolas_arak.get("kezi")
+        elif csiszolas == "csiszolás":
+            csiszolas_ara = C.csiszolas_arak[str(vastagsag)]
 
+        if csiszolas:
+            oldalak_lista = csiszolando_oldal.split(" + ")
+
+            # Számláljuk az egyes oldalak előfordulásait
+            szelesseg_count = oldalak_lista.count("Szélesség")
+            magassag_count = oldalak_lista.count("Magasság")
+
+            szelesseg = szelesseg if szelesseg is not None else 0
+            magassag = magassag if magassag is not None else 0
+            csiszolas_ara = csiszolas_ara if csiszolas_ara is not None else 1
+
+            ar += math.ceil(((szelesseg_count * szelesseg) + (magassag_count * magassag))/1000 * csiszolas_ara)
+
+        szereles = st.selectbox("Szerelés típusa", ["Szerelés nélkül",
+                                                    "Szerelés saját műhelyünkben",
+                                                    "Szerelés helyszínen",
+                                                    "Munkagép ragasztva",
+                                                    "Munkagép szereléssel"])
+        if szereles == "Szerelés saját műhelyünkben":
+            ar += ar * C.szereles_sajat_muhely
+        elif szereles == "Szerelés helyszínen":
+            ar += ar * C.szereles_helyszinen
+        elif szereles == "Munkagép ragasztva":
+            ar += ar * C.szereles_munkagep_ragasztva
+        elif szereles == "Munkagép szereléssel":
+            ar += ar * C.szereles_munkagep
+
+        ar = ar * darabszam
         st.write(f"Számított ár: {ar} RON")
 
         if st.button("Hozzáad"):
@@ -189,8 +274,32 @@ def show(user_role: str, user_name:str):
 
         if uploaded_file:
             try:
-                pass
+                order_data_file = read_excel.extract_order_data_vagott_uveg(uploaded_file)
+                megrendelo_neve = order_data_file['Megrendelő_neve'].iloc[0]
+                hatarido = str(order_data_file['Határidő'].iloc[0]).split(" ")[0]
+                sorszam = order_data_file['Sorszám_Megrendelés'].iloc[0]
+                arlista_szint = 2 if not df_cegek_arlista.loc[
+                    df_cegek_arlista["Ceg neve"] == megrendelo_neve, "Arlista"].empty else 0
+                order_data_file["Megrendelo_neve"] = megrendelo_neve
+                required_columns = ["Szélesség", "Magasság", "Üveg típusa"]
+                if all(col in order_data_file.columns for col in required_columns):
+                    order_data_file['Terület'] = order_data_file.apply(
+                        lambda row: (row["Magasság"] * row["Szélesség"] * row["Darabszám"])/1000000, axis=1)
+                    order_data_file["Ár"] = order_data_file.apply(lambda row: calculate_price(row, arlista_szint), axis=1)
+
+                    st.dataframe(order_data_file[
+                                     ["Szélesség", "Magasság", "Darabszám", "Terület",
+                                       "Üveg típusa", "Csiszolás", "Ár"]], hide_index=True, use_container_width=True)
+
+                    st.write(f"💰 **Számított ár:** {np.ceil(order_data_file["Ár"].sum())} lej")
+
             except Exception as e:
                 st.error(f"Hiba történt a fájl feldolgozása közben: {e}")
+
+show("vasarlo", "Reka")
+
+
+
+
 
 
