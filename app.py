@@ -94,12 +94,12 @@ if "authenticated" not in st.session_state:
     st.session_state.username_str = None
 
 
-def login_page():
-    st.markdown("## 🔐 Bejelentkezés")
-    # Beviteli mezők
-    username = st.text_input("Felhasználónév")
-    password = st.text_input("Jelszó", type="password")
-# Jelszó ellenőrzése belépéskor
+# def login_page():
+#     st.markdown("## 🔐 Bejelentkezés")
+#     # Beviteli mezők
+#     username = st.text_input("Felhasználónév")
+#     password = st.text_input("Jelszó", type="password")
+# # Jelszó ellenőrzése belépéskor
 
 # 🔐 Jelszó ellenőrzés
 def check_user_password(username: str, password: str):
