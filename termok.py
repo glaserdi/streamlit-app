@@ -19,7 +19,6 @@ import io
 from io import BytesIO 
 import shutil
 
-st.set_page_config(locale="hu-HU")
 deadlines = collect_calendar_data()
 
 # Próbáljuk meg beolvasni a secrets fájlt
@@ -577,6 +576,7 @@ def show(user_role: str, user_name:str):
                 #     mime="text/csv",
                 #     use_container_width=True,
                 # )
+
 
 
 
