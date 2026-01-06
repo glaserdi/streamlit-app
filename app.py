@@ -119,7 +119,7 @@ def login_page():
     username = st.text_input("Felhasználónév")
     password = st.text_input("Jelszó", type="password")
 
-    if st.button("Bejelentkezés"):
+    if st.button("Bejelentkezés", use_container_width=True):
         if check_user_password(username, password):
             # Bejelentkezési adatok mentése
             st.session_state.authenticated = True
@@ -182,7 +182,7 @@ def main_content():
                                 "height": 800,  # Megnövelt méret
                                 "contentHeight": 700
                                }
-            if st.button("🔄 Naptár frissítése"):
+            if st.button("🔄 Naptár frissítése", use_container_width=True):
                 st.cache_data.clear()
                 st.cache_resource.clear()
                 st.rerun()
@@ -200,7 +200,7 @@ def main_content():
             new_date = st.date_input("Új határidő:", pd.to_datetime(current_date))
             new_title = st.text_input("Új név:", selected_deadline, key="new_title")
 
-            if st.button("Módosítás mentése"):
+            if st.button("Módosítás mentése", use_container_width=True):
                 deadlines.loc[deadlines["title"] == selected_deadline, ["title", "start"]] = [new_title,
                                                                                               new_date.strftime(
                                                                                                   "%Y-%m-%d")]
@@ -219,7 +219,7 @@ def main_content():
         uj_darabszam = st.number_input("Darabszám", min_value=1, step=1)
         uj_terulet = st.text_input("Terület")
         
-        if st.button("Hozzáadás"):
+        if st.button("Hozzáadás", use_container_width=True):
             if uj_megrendeles and uj_hatarido and uj_terulet:
                 # Új bejegyzés létrehozása
                 new_entry = pd.DataFrame([{
@@ -251,7 +251,7 @@ def main_content():
         if not deadlines.empty:
             selected_deadline = st.selectbox("Válassz egy határidőt törlésre:", deadlines["title"])
 
-            if st.button("Kiválasztott határidő törlése"):
+            if st.button("Kiválasztott határidő törlése", use_container_width=True):
                 deadlines = deadlines[deadlines["title"] != selected_deadline]
                 modify_calendar_data(deadlines)
                 st.success(f"✅ '{selected_deadline}' törölve!")
@@ -265,7 +265,7 @@ def main_content():
             selected_day_str = selected_day.strftime("%Y-%m-%d")  # Kiválasztott dátumot átalakítjuk stringgé
             deadlines["start"] = pd.to_datetime(deadlines["start"], errors="coerce").dt.strftime("%Y-%m-%d")  # Dátumok formázása
         
-            if st.button("Naplózás"):
+            if st.button("Naplózás", use_container_width=True):
                 # Az adott napra vonatkozó rendelések szűrése
                 filtered_deadlines = deadlines[deadlines["start"] == selected_day_str]  # String alapú összehasonlítás
         
@@ -305,3 +305,4 @@ if not st.session_state.authenticated:
     login_page()
 else:
     main_content()
+
