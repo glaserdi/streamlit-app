@@ -163,7 +163,7 @@ def show(user_role, user_name):
         ar = ar * darabszam
         st.write(f"Számított ár: {ar} RON")
 
-        if st.button("Hozzáad"):
+        if st.button("Hozzáad", use_container_width=True, type="primary"):
             uj_sorszam = 1 if st.session_state.adathalmaz.empty else int(
                 st.session_state.adathalmaz["Sorszám"].max()) + 1
 
@@ -210,7 +210,7 @@ def show(user_role, user_name):
 
             sorszam_to_delete = st.selectbox("Válassz sorszámot törléshez:", sorszamok)
 
-            if st.button("Sor törlése"):
+            if st.button("Sor törlése", use_container_width=True):
                 st.session_state.adathalmaz = st.session_state.adathalmaz[
                     st.session_state.adathalmaz["Sorszám"] != sorszam_to_delete
                     ].reset_index(drop=True)
@@ -295,6 +295,7 @@ def show(user_role, user_name):
 
             except Exception as e:
                 st.error(f"Hiba történt a fájl feldolgozása közben: {e}")
+
 
 
 
