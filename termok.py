@@ -574,6 +574,7 @@ def show(user_role: str, user_name:str):
                 #     data=csv,
                 #     file_name="lec_vagasi_terv.csv",
                 #     mime="text/csv",
-                      use_container_width=True,
+                #     use_container_width=True,
                 # )
+
 
