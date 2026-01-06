@@ -274,7 +274,7 @@ def show(user_role: str, user_name:str):
 
             st.write(f"💰 **Számított ár:** {round(ar,2)} lej")
 
-        if st.button("Hozzáad"):
+        if st.button("Hozzáad", use_container_width=True, type="primary"):
             if megrendelo_neve and termek_kod and tipus and vastagsag and rendeles_sorszama:
                 # Ha az adathalmaz üres
                 if st.session_state.adathalmaz.empty:
@@ -349,7 +349,9 @@ def show(user_role: str, user_name:str):
                 label="📥 Letöltés PDF-ként",
                 data=pdf_buffer,
                 file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_arajanlat.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
+                type="primary",
+                use_container_width=True
             )
 
             if user_role != "vasarlo":
@@ -368,7 +370,7 @@ def show(user_role: str, user_name:str):
 
             st.header("Rendelés leadása 🛒")
             task_name = f"{order_data_kezi["Megrendelo_neve"].iloc[0]} {round(rendeles_sorszama)}"
-            if st.button("✅ Árajánlat elfogadása"):
+            if st.button("✅ Árajánlat elfogadása", use_container_width=True):
                 if user_role == "vasarlo":
                     result = send_email(pdf_buffer.getvalue(),
                                         order_data_kezi,
@@ -483,7 +485,9 @@ def show(user_role: str, user_name:str):
                 label="📥 Letöltés PDF-ként",
                 data=pdf_buffer,
                 file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_arajanlat.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary"
             )
 
             if user_role != "vasarlo":
@@ -492,7 +496,8 @@ def show(user_role: str, user_name:str):
                 label="📥 Letöltés PDF-ként",
                 data=gyartas_pdf_buffer,
                 file_name=f"{megrendelo_neve}_{datetime.datetime.now()}_gyartas.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
+                use_container_width=True
             )
                 st.markdown("""
                                 <script type="text/javascript">
@@ -501,7 +506,7 @@ def show(user_role: str, user_name:str):
                             """, unsafe_allow_html=True)
 
             st.header("Rendelés leadása 🛒")
-            if st.button("✅ Árajánlat elfogadása"):
+            if st.button("✅ Árajánlat elfogadása", use_container_width=True):
                 if user_role not in ["glaserdi_fonok", "glaserdi_alkalmazott"]:
                     result = send_email(pdf_buffer.getvalue(), order_data, sorszam,
                                         hatarido, st.session_state.username)  # Kiolvassuk a tartalmat bájtokként
@@ -569,4 +574,6 @@ def show(user_role: str, user_name:str):
                 #     data=csv,
                 #     file_name="lec_vagasi_terv.csv",
                 #     mime="text/csv",
+                      use_container_width=True,
                 # )
+
